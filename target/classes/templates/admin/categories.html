@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: adminHead('Kategori')}"></head>
+<body>
+<div class="layout">
+    <th:block th:replace="~{fragments/admin-layout :: sidebar('categories')}"></th:block>
+    <div class="main">
+        <th:block th:replace="~{fragments/admin-layout :: topbar('Kategori')}"></th:block>
+        <div class="content">
+            <div class="toolbar">
+                <a href="/admin/categories/new" class="btn-pill primary">+ Tambah Kategori</a>
+            </div>
+            <div class="panel">
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Deskripsi</th>
+                            <th>Jumlah Menu</th>
+                            <th>Status</th>
+                            <th style="text-align:right">Aksi</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="cat : ${categories}">
+                            <td>
+                                <span style="display:inline-flex;align-items:center;gap:10px">
+                                    <img th:if="${cat.imageUrl}" th:src="${cat.imageUrl}" alt="" class="thumb-sm" style="width:40px;height:40px;border-radius:50%">
+                                    <strong th:text="${cat.name}">Nama</strong>
+                                </span>
+                            </td>
+                            <td class="table-note" th:text="${cat.description}">Deskripsi</td>
+                            <td th:text="${#lists.size(cat.foods)} + ' menu'">0 menu</td>
+                            <td>
+                                <span class="badge" th:classappend="${cat.active} ? 'badge-paid' : 'badge-cancelled'"
+                                      th:text="${cat.active} ? 'Aktif' : 'Nonaktif'">Aktif</span>
+                            </td>
+                            <td style="text-align:right;white-space:nowrap">
+                                <a th:href="@{/admin/categories/{id}/edit(id=${cat.id})}" class="btn-pill outline sm">Edit</a>
+                                <form th:action="@{/admin/categories/{id}/delete(id=${cat.id})}" method="post"
+                                      style="display:inline-block;margin:0">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <button type="submit" class="btn-pill danger sm"
+                                            data-confirm="Hapus kategori '${cat.name}'?">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,83 @@
+2026-10-01 13:55:01.850823+07:00 database: CREATE SEQUENCE "public"."SYSTEM_SEQUENCE_67EFD11C_AE80_446B_AACA_FC37EB49FB1B" START WITH 1 RESTART WITH 4 BELONGS_TO_TABLE
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Schema "public" not found; SQL statement:
+CREATE SEQUENCE "public"."SYSTEM_SEQUENCE_67EFD11C_AE80_446B_AACA_FC37EB49FB1B" START WITH 1 RESTART WITH 4 BELONGS_TO_TABLE [90079-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.command.Parser.getSchema(Parser.java:944)
+	at org.h2.command.Parser.getSchema(Parser.java:950)
+	at org.h2.command.Parser.parseCreateSequence(Parser.java:6682)
+	at org.h2.command.Parser.parseCreate(Parser.java:6357)
+	at org.h2.command.Parser.parsePrepared(Parser.java:666)
+	at org.h2.command.Parser.parse(Parser.java:592)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepare(Parser.java:451)
+	at org.h2.engine.SessionLocal.prepare(SessionLocal.java:589)
+	at org.h2.engine.SessionLocal.prepare(SessionLocal.java:573)
+	at org.h2.engine.MetaRecord.prepareAndExecute(MetaRecord.java:75)
+	at org.h2.engine.Database.executeMeta(Database.java:666)
+	at org.h2.engine.Database.executeMeta(Database.java:638)
+	at org.h2.engine.Database.<init>(Database.java:359)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:125)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:288)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:270)
+	at org.h2.tools.Shell.runTool(Shell.java:146)
+	at org.h2.tools.Shell.main(Shell.java:80)
+2026-10-01 13:55:01.855332+07:00 database: opening D:/Online_Food_Ordering_System/data/fooddb
+org.h2.message.DbException: Schema "public" not found [90079-224]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.command.Parser.getSchema(Parser.java:944)
+	at org.h2.command.Parser.getSchema(Parser.java:950)
+	at org.h2.command.Parser.parseCreateSequence(Parser.java:6682)
+	at org.h2.command.Parser.parseCreate(Parser.java:6357)
+	at org.h2.command.Parser.parsePrepared(Parser.java:666)
+	at org.h2.command.Parser.parse(Parser.java:592)
+	at org.h2.command.Parser.parse(Parser.java:564)
+	at org.h2.command.Parser.prepare(Parser.java:451)
+	at org.h2.engine.SessionLocal.prepare(SessionLocal.java:589)
+	at org.h2.engine.SessionLocal.prepare(SessionLocal.java:573)
+	at org.h2.engine.MetaRecord.prepareAndExecute(MetaRecord.java:75)
+	at org.h2.engine.Database.executeMeta(Database.java:666)
+	at org.h2.engine.Database.executeMeta(Database.java:638)
+	at org.h2.engine.Database.<init>(Database.java:359)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:125)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:288)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:270)
+	at org.h2.tools.Shell.runTool(Shell.java:146)
+	at org.h2.tools.Shell.main(Shell.java:80)
+Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Schema "public" not found; SQL statement:
+CREATE SEQUENCE "public"."SYSTEM_SEQUENCE_67EFD11C_AE80_446B_AACA_FC37EB49FB1B" START WITH 1 RESTART WITH 4 BELONGS_TO_TABLE [90079-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:644)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 25 more
+2026-10-01 13:55:05.618069+07:00 database: wrong user or password; user: "SA"
+org.h2.message.DbException: Wrong user name or password [28000-224]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.Engine.openSession(Engine.java:154)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:125)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:288)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:270)
+	at org.h2.tools.Shell.runTool(Shell.java:146)
+	at org.h2.tools.Shell.main(Shell.java:80)
+Caused by: org.h2.jdbc.JdbcSQLInvalidAuthorizationSpecException: Wrong user name or password [28000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:522)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 12 more
+2026-10-01 13:55:22.133067+07:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "food" not found; SQL statement:
+SELECT name, image_url FROM food ORDER BY name [42102-224]

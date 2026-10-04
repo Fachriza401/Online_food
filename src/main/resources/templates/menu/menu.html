@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head('Menu')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar}"></th:block>
+<th:block th:replace="~{fragments/alerts}"></th:block>
+
+<div class="page-head">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="/">Beranda</a> <span class="sep">/</span> <span>Menu</span>
+        </nav>
+        <h2 class="page-title">Menu Kami</h2>
+        <p class="page-sub" th:text="${#lists.size(foods)} + ' menu tersedia'">14 menu tersedia</p>
+    </div>
+</div>
+
+<section class="section" style="padding-top:20px">
+    <div class="container">
+        <div class="toolbar">
+            <form method="get" action="/menu" style="display:contents">
+                <div class="search-slot">
+                    <span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input class="form-control" type="search" name="q" placeholder="Cari makanan..."
+                           th:value="${keyword}">
+                </div>
+                <select class="form-control" name="category" style="width:auto;min-width:180px"
+                        onchange="this.form.submit()">
+                    <option value="">Semua Kategori</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}"
+                            th:text="${cat.name}"
+                            th:selected="${selectedCategory == cat.id}">Kategori</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Cari</button>
+                <a th:if="${keyword != null or selectedCategory != null}" href="/menu" class="btn btn-ghost">Reset</a>
+            </form>
+        </div>
+
+        <div class="food-grid" th:if="${!#lists.isEmpty(foods)}">
+            <article class="food-card" th:each="food : ${foods}">
+                <div class="food-thumb">
+                    <span class="food-status" th:classappend="${food.available} ? 'available' : 'unavailable'"
+                          th:text="${food.available} ? 'Tersedia' : 'Habis'">Tersedia</span>
+                    <img th:src="${food.imageUrl}" th:alt="${food.name}" loading="lazy" decoding="async">
+                </div>
+                <div class="food-body">
+                    <span class="food-cat" th:if="${food.category != null}" th:text="${food.category.name}">Kategori</span>
+                    <h3 class="food-name">
+                        <a th:href="@{/food/{id}(id=${food.id})}" th:text="${food.name}"
+                           class="food-card-link">Nama</a>
+                    </h3>
+                    <p class="food-desc" th:text="${food.description}">Deskripsi</p>
+                    <div class="rating-row" th:if="${food.reviewCount > 0}">
+                        <span th:replace="~{fragments/rating :: stars(${food.ratingAvg})}"></span>
+                        <span class="rating-score" th:text="${#numbers.formatDecimal(food.ratingAvg, 1, 1)}">4.7</span>
+                        <span class="rating-count" th:text="${food.reviewCount} + ' ulasan'">8 ulasan</span>
+                    </div>
+                    <div class="rating-row rating-empty" th:unless="${food.reviewCount > 0}">
+                        <span class="rating-count">Belum ada ulasan</span>
+                    </div>
+                    <div class="food-foot">
+                        <span class="food-price">Rp <span
+                                th:text="${#numbers.formatInteger(food.price, 3, 'POINT')}">25.000</span></span>
+                        <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="foodId" th:value="${food.id}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button class="add-btn" th:disabled="${!food.available}" title="Tambah ke keranjang" type="submit">+</button>
+                        </form>
+                        <a th:if="${!isAuthenticated}" href="/login" class="btn btn-primary btn-sm">Tambah</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div class="empty-state" th:if="${#lists.isEmpty(foods)}">
+            <div class="icon"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg></div>
+            <h3>Menu tidak ditemukan</h3>
+            <p>Tidak ada menu yang cocok dengan pencarian Anda.</p>
+            <a href="/menu" class="btn btn-primary">Lihat Semua Menu</a>
+        </div>
+    </div>
+</section>
+
+<th:block th:replace="~{fragments/footer}"></th:block>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

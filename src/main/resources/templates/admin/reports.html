@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: adminHead('Laporan')}"></head>
+<body>
+<div class="layout">
+    <th:block th:replace="~{fragments/admin-layout :: sidebar('reports')}"></th:block>
+    <div class="main">
+        <th:block th:replace="~{fragments/admin-layout :: topbar('Laporan')}"></th:block>
+        <div class="content">
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-icon blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>
+                    <div>
+                        <div class="stat-value" th:text="${stats['orderCount']}">0</div>
+                        <div class="stat-label">Pesanan Diterima</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon green"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+                    <div>
+                        <div class="stat-value">Rp <span th:text="${#numbers.formatInteger(stats['revenue'], 3, 'POINT')}">0</span></div>
+                        <div class="stat-label">Total Pendapatan</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon orange"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C2410C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+                    <div>
+                        <div class="stat-value" th:text="${stats['pendingCount']}">0</div>
+                        <div class="stat-label">Menunggu Konfirmasi</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon purple"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                    <div>
+                        <div class="stat-value" th:text="${stats['customerCount']}">0</div>
+                        <div class="stat-label">Pelanggan Terdaftar</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start" class="r-grid">
+                <div class="panel">
+                    <div class="panel-head"><h3 class="panel-title">Menu Terlaris</h3></div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead><tr><th>#</th><th>Menu</th><th>Terjual</th><th>Omzet</th></tr></thead>
+                            <tbody>
+                            <tr th:each="row, i : ${topFoods}">
+                                <td th:text="${i.index + 1}">1</td>
+                                <td th:text="${row[0]}">Nama</td>
+                                <td th:text="${row[1]}">0</td>
+                                <td>Rp <span th:text="${#numbers.formatInteger(row[2], 3, 'POINT')}">0</span></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(topFoods)}">
+                                <td colspan="4" class="table-note" style="text-align:center;padding:24px">Belum ada penjualan.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head"><h3 class="panel-title">Distribusi Status Pesanan</h3></div>
+                    <div class="panel-body">
+                        <div th:each="entry : ${ordersByStatusMap}" style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--border)">
+                            <span style="display:inline-flex;align-items:center;gap:8px">
+                                <span class="badge" th:classappend="${entry.key.badgeClass}" th:text="${entry.key.label}">Status</span>
+                            </span>
+                            <strong th:text="${entry.value}">0</strong>
+                        </div>
+                        <p class="table-note" style="margin:14px 0 0">Metode pembayaran: <strong th:text="${paymentMethod.label}">COD</strong> (Bayar di Tempat).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top:18px">
+                <div class="panel-head"><h3 class="panel-title">Penjualan 30 Hari Terakhir (per-hari)</h3></div>
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead><tr><th>Tanggal</th><th>Total Penjualan</th></tr></thead>
+                        <tbody>
+                        <tr th:each="row : ${salesPerDay}">
+                            <td th:text="${#temporals.format(row[0], 'EEEE, dd MMM yyyy')}">-</td>
+                            <td>Rp <span th:text="${#numbers.formatInteger(row[1], 3, 'POINT')}">0</span></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(salesPerDay)}">
+                            <td colspan="2" class="table-note" style="text-align:center;padding:24px">Belum ada data penjualan.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
+</body>
+</html>

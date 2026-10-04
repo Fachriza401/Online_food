@@ -1,0 +1,24 @@
+<footer class="footer" th:fragment="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand">Toko<span style="color:#F97316">Kita</span></div>
+                <p>Website pemesanan makanan online. Pesan makanan favoritmu dengan mudah, cepat, dan aman — di antar sampai depan pintu.</p>
+            </div>
+            <div>
+                <h4>Navigasi</h4>
+                <a th:href="@{/}">Beranda</a>
+                <a th:href="@{/menu}">Menu</a>
+                <a th:href="@{/login}">Login</a>
+                <a th:href="@{/register}">Daftar</a>
+            </div>
+            <div>
+                <h4>Kontak</h4>
+                <a href="tel:081234567890">0812-3456-7890</a>
+                <a href="mailto:halo@tokokita.example">halo@tokokita.example</a>
+                <a href="/#tentang">Tentang Kami</a>
+            </div>
+        </div>
+        <div class="footer-bottom">© <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2025</span> Toko Kita — Sistem Pemesanan Makanan Online. Semua hak dilindungi.</div>
+    </div>
+</footer>

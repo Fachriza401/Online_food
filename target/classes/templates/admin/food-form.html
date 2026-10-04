@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: adminHead(${mode == 'create' ? 'Tambah Menu' : 'Edit Menu'})}"></head>
+<body>
+<div class="layout">
+    <th:block th:replace="~{fragments/admin-layout :: sidebar('foods')}"></th:block>
+    <div class="main">
+        <th:block th:replace="~{fragments/admin-layout :: topbar(${mode == 'create' ? 'Tambah Menu' : 'Edit Menu'})}"></th:block>
+        <div class="content" style="max-width:860px">
+            <div class="panel">
+                <div class="panel-head">
+                    <h3 class="panel-title" th:text="${mode == 'create' ? 'Form Tambah Menu' : 'Form Edit Menu'}">Form</h3>
+                    <a href="/admin/foods" class="btn-pill outline">← Kembali</a>
+                </div>
+                <div class="panel-body">
+                    <div class="alert alert-danger" th:if="${error}" th:text="${error}">Error</div>
+
+                    <form th:action="${formAction}"
+                          th:object="${foodForm}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="name">Nama Menu *</label>
+                                <input class="form-control" type="text" id="name" th:field="*{name}" required placeholder="mis. Nasi Goreng Spesial">
+                                <p class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="price">Harga (Rp) *</label>
+                                <div style="position:relative">
+                                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:600;color:var(--text-secondary);pointer-events:none">Rp</span>
+                                    <input class="form-control" type="number" id="price" th:field="*{price}"
+                                           required min="1" placeholder="28000"
+                                           style="padding-left:42px">
+                                    <p class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="description">Deskripsi</label>
+                            <textarea class="form-control" id="description" th:field="*{description}"
+                                      placeholder="Deskripsi singkat menu, bahan utama, dan keunggulannya."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="categoryId">Kategori</label>
+                                <select class="form-control" id="categoryId" th:field="*{categoryId}">
+                                    <option value="">— Tanpa kategori —</option>
+                                    <option th:each="cat : ${categories}" th:value="${cat.id}"
+                                            th:text="${cat.name} + (${!cat.active} ? ' (nonaktif)' : '')">Kategori</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" style="display:block">Status Ketersediaan</label>
+                                <label class="form-check" style="padding:12px;border:1.5px solid var(--border);border-radius:10px">
+                                    <input type="checkbox" th:field="*{available}">
+                                    <span>Tersedia untuk dipesan</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="imageFile">Foto Menu</label>
+                            <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                                <div style="flex:1;min-width:220px">
+                                    <input class="form-control" type="file" id="imageFile" name="imageFile"
+                                           accept=".jpg,.jpeg,.png,.webp">
+                                    <p class="form-hint">Maks. 5 MB. Format JPG, PNG, atau WEBP. Foto akan disimpan ke folder upload terpisah dari aset statis.</p>
+                                </div>
+                                <img th:src="${foodForm.imageUrl != null and !foodForm.imageUrl.isBlank()
+                                     ? foodForm.imageUrl
+                                     : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='}"
+                                     alt="Preview" class="thumb-lg" id="imagePreview"
+                                     th:styleappend="${foodForm.imageUrl != null and !foodForm.imageUrl.isBlank() ? 'display:block' : 'display:none'}"
+                                     style="width:140px;height:100px;object-fit:cover;aspect-ratio:4/3">
+                            </div>
+                            <input type="hidden" th:field="*{imageUrl}">
+                        </div>
+                        <div style="display:flex;gap:12px;margin-top:6px">
+                            <button type="submit" class="btn-pill primary" style="padding:12px 28px">Simpan</button>
+                            <a href="/admin/foods" class="btn-pill outline" style="padding:12px 28px">Batal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
+</body>
+</html>

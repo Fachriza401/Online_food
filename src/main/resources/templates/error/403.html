@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Akses Ditolak')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar}"></th:block>
+<div class="auth-wrap">
+    <div class="auth-card" style="text-align:center">
+        <div style="font-size:56px;margin-bottom:10px;display:flex;justify-content:center"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C2410C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h1 class="auth-title">Akses Ditolak</h1>
+        <p class="auth-sub">Anda tidak memiliki izin untuk membuka halaman ini.</p>
+        <a href="/" class="btn btn-primary btn-block">Kembali ke Beranda</a>
+    </div>
+</div>
+</body>
+</html>

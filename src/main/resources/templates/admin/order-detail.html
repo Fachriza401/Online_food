@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: adminHead('Detail Pesanan')}"></head>
+<body>
+<div class="layout">
+    <th:block th:replace="~{fragments/admin-layout :: sidebar('orders')}"></th:block>
+    <div class="main">
+        <th:block th:replace="~{fragments/admin-layout :: topbar('Detail Pesanan')}"></th:block>
+        <div class="content">
+            <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start" class="od-grid">
+                <div style="display:flex;flex-direction:column;gap:18px">
+                    <div class="panel">
+                        <div class="panel-head">
+                            <div>
+                                <h3 class="panel-title" th:text="${order.orderCode}">ORD-..</h3>
+                                <span class="badge" th:classappend="${order.status.badgeClass}"
+                                      style="margin-top:6px" th:text="${order.status.label}">Status</span>
+                            </div>
+                            <span th:if="${payment != null}">
+                                <span class="badge" th:classappend="${payment.status.badgeClass}"
+                                      th:text="${'Bayar: ' + payment.status.label}">Bayar</span>
+                            </span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="status-steps" th:if="${order.status.name() != 'CANCELLED'}">
+                                <th:block th:each="s, stat : ${statusFlow}">
+                                    <span class="status-step"
+                                          th:classappend="${stat.index < statusIndex} ? 'done' : (${stat.index == statusIndex} ? 'sheet' : '')">
+                                        <span class="dot"></span><span th:text="${s.label}">Status</span>
+                                    </span><span class="status-line" th:if="${!stat.last}"
+                                          th:classappend="${stat.index < statusIndex} ? 'done' : ''"></span>
+                                </th:block>
+                            </div>
+                            <div th:if="${order.status.name() == 'CANCELLED'}">
+                                <span class="badge badge-cancelled">Pesanan dibatalkan</span>
+                                <span th:if="${order.processedAt != null}" class="table-note"
+                                      th:text="' pada ' + ${#temporals.format(order.processedAt, 'dd MMM yyyy, HH:mm')}"></span>
+                            </div>
+
+                            <form th:action="@{/admin/orders/{id}/status(id=${order.id})}" method="post"
+                                  style="margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <select class="form-control" name="status" style="width:auto;min-width:210px">
+                                    <option th:each="s : ${statuses}" th:value="${s.name()}"
+                                            th:text="${s.label}"
+                                            th:selected="${order.status == s}">Status</option>
+                                </select>
+                                <button type="submit" class="btn-pill primary">Perbarui Status</button>
+                                <span class="table-note">Mengubah status akan otomatis menandai pembayaran Lunas saat Selesai.</span>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-head"><h3 class="panel-title">Item Pesanan</h3></div>
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                <tr><th>Menu</th><th>Harga</th><th>Qty</th><th>Subtotal</th></tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="item : ${order.items}">
+                                    <td th:text="${item.foodName}">Nama</td>
+                                    <td>Rp <span th:text="${#numbers.formatInteger(item.unitPrice, 3, 'POINT')}">0</span></td>
+                                    <td th:text="${item.quantity}">1</td>
+                                    <td>Rp <span th:text="${#numbers.formatInteger(item.subtotal, 3, 'POINT')}">0</span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:18px">
+                    <div class="panel">
+                        <div class="panel-head"><h3 class="panel-title">Informasi Pelanggan</h3></div>
+                        <div class="panel-body">
+                            <div class="summary-row"><span>Nama</span><strong style="color:var(--text)" th:text="${order.customerName}">Nama</strong></div>
+                            <div class="summary-row"><span>Telepon</span><strong style="color:var(--text)" th:text="${order.customerPhone}">08..</strong></div>
+                            <div class="summary-row"><span>Alamat</span><strong style="color:var(--text);text-align:right;max-width:60%" th:text="${order.customerAddress}">Alamat</strong></div>
+                            <div class="summary-row" th:if="${order.note != null and !order.note.isBlank()}"><span>Catatan</span><strong style="color:var(--text);text-align:right;max-width:60%" th:text="${order.note}">-</strong></div>
+                            <div class="summary-row"><span>Dibuat</span><strong style="color:var(--text)" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, HH:mm')}">-</strong></div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-head"><h3 class="panel-title">Ringkasan Pembayaran</h3></div>
+                        <div class="panel-body">
+                            <div class="summary-row"><span>Subtotal</span><span>Rp <span th:text="${#numbers.formatInteger(order.subtotal, 3, 'POINT')}">0</span></span></div>
+                            <div class="summary-row"><span>Ongkir</span>
+                                <span th:if="${order.shippingFee > 0}">Rp <span th:text="${#numbers.formatInteger(order.shippingFee, 3, 'POINT')}">0</span></span>
+                                <span th:unless="${order.shippingFee > 0}">Gratis</span></div>
+                            <div class="summary-row total"><span>Total</span><span>Rp <span th:text="${#numbers.formatInteger(order.totalAmount, 3, 'POINT')}">0</span></span></div>
+                            <div class="summary-row"><span>Metode</span><strong style="color:var(--text)" th:text="${order.paymentMethod.label}">COD</strong></div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px">
+                        <a href="/admin/orders" class="btn-pill outline" style="flex:1;justify-content:center">← Kembali</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.status-steps { display:flex; align-items:center; gap:0; flex-wrap:wrap; margin:10px 0 4px; }
+.status-step { display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text-secondary); font-weight:600; white-space:nowrap; }
+.status-step .dot { width:13px; height:13px; border-radius:50%; background:#E7E5E4; border:3px solid #fff; box-shadow:0 0 0 1.5px #E7E5E4; }
+.status-step.done { color:#15803D; }
+.status-step.done .dot { background:#16A34A; box-shadow:0 0 0 1.5px #16A34A; }
+.status-step.sheet { color:var(--primary-dark); }
+.status-step.sheet .dot { background:var(--primary); box-shadow:0 0 0 1.5px var(--primary); }
+.status-line { flex:none; width:26px; height:2px; background:#E7E5E4; margin:0 6px; }
+.status-line.done { background:#16A34A; }
+.summary-row { display:flex; justify-content:space-between; padding:7px 0; font-size:13.5px; color:var(--text-secondary); border-bottom:1px dashed var(--border); }
+.summary-row:last-child { border-bottom:none; }
+.summary-row.total { font-size:17px; color:var(--text); font-weight:800; padding-top:12px; }
+</style>
+<th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
+</body>
+</html>

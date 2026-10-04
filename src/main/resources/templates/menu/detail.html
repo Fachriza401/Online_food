@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head(${food.name})}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar}"></th:block>
+<th:block th:replace="~{fragments/alerts}"></th:block>
+
+<div class="page-head">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="/">Beranda</a> <span class="sep">/</span>
+            <a href="/menu">Menu</a> <span class="sep">/</span>
+            <span th:text="${food.name}">Nama</span>
+        </nav>
+    </div>
+</div>
+
+<section class="section" style="padding-top:14px">
+    <div class="container">
+        <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:start"
+             class="detail-grid">
+            <div>
+                <div style="border-radius:24px;overflow:hidden;box-shadow:var(--shadow-soft);aspect-ratio:4/3;background:var(--primary-soft)">
+                    <img th:src="${food.imageUrl}" th:alt="${food.name}"
+                         style="width:100%;height:100%;object-fit:cover" loading="eager">
+                </div>
+            </div>
+            <div>
+                <span class="food-cat" th:if="${food.category != null}" th:text="${food.category.name}"
+                      style="color:var(--primary);font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:12.5px">Kategori</span>
+                <h1 style="font-size:clamp(28px,3vw,38px);font-weight:800;margin:6px 0 10px;letter-spacing:-.5px"
+                    th:text="${food.name}">Nama</h1>
+                <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+                    <span class="badge" th:classappend="${food.available} ? 'badge-completed' : 'badge-cancelled'"
+                          th:text="${food.available} ? 'Tersedia' : 'Habis'">Tersedia</span>
+                    <span class="badge badge-outline">Foto &amp; spesifikasi asli menu ini</span>
+                </div>
+                <p style="color:var(--text-secondary);font-size:15.5px;line-height:1.8" th:text="${food.description}">Deskripsi</p>
+
+                <div class="rating-summary" th:if="${food.reviewCount > 0}">
+                    <div class="rating-score-big" th:text="${#numbers.formatDecimal(food.ratingAvg, 1, 1)}">4.7</div>
+                    <div>
+                        <span th:replace="~{fragments/rating :: stars(${food.ratingAvg})}"></span>
+                        <div class="rating-meta" th:text="${food.reviewCount} + ' ulasan dari pelanggan'">8 ulasan dari pelanggan</div>
+                    </div>
+                </div>
+                <div class="rating-summary rating-summary-empty" th:unless="${food.reviewCount > 0}">
+                    <span th:replace="~{fragments/rating :: stars(0)}"></span>
+                    <div class="rating-meta">Belum ada ulasan untuk menu ini. Jadilah yang pertama!</div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:18px;margin:22px 0">
+                    <div style="font-size:30px;font-weight:800;color:var(--primary-dark)">
+                        Rp <span th:text="${#numbers.formatInteger(food.price, 3, 'POINT')}">28.000</span>
+                    </div>
+                </div>
+
+                <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post">
+                    <input type="hidden" name="foodId" th:value="${food.id}">
+                    <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+                        <div class="qty-control">
+                            <button type="button" onclick="adj(-1)">−</button>
+                            <input type="number" class="qty" name="quantity" id="detailQty" value="1" min="1" max="99">
+                            <button type="button" onclick="adj(1)">+</button>
+                        </div>
+                        <button type="submit" class="btn btn-primary" th:disabled="${!food.available}"
+                                style="font-size:16px;padding:14px 30px;display:inline-flex;align-items:center;gap:9px">
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                            Tambah ke Keranjang
+                        </button>
+                    </div>
+                </form>
+                <div th:if="${!isAuthenticated}" style="margin-top:14px">
+                    <a href="/login" class="btn btn-primary">Login untuk Memesan</a>
+                    <a href="/register" class="btn btn-ghost">atau Daftar</a>
+                </div>
+
+                <div style="margin-top:28px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
+                    <div class="summary-row"><span>Kategori</span>
+                        <strong th:text="${food.category != null ? food.category.name : 'Lainnya'}" style="color:var(--text)">Nasi</strong></div>
+                    <div class="summary-row"><span>Status</span>
+                        <strong th:text="${food.available} ? 'Tersedia' : 'Habis'"
+                                th:style="${food.available} ? 'color:var(--success)' : 'color:var(--danger)'">Tersedia</strong></div>
+                    <div class="summary-row"><span>Estimasi siap</span>
+                        <strong style="color:var(--text)">± 30 menit</strong></div>
+                </div>
+            </div>
+
+            <div class="review-panel" style="grid-column:1/-1">
+                <div class="review-head">
+                    <h3>Ulasan Pelanggan</h3>
+                    <span class="badge badge-outline" th:if="${food.reviewCount > 0}"
+                          th:text="${food.reviewCount} + ' ulasan'">8 ulasan</span>
+                </div>
+
+                <form class="review-form" th:if="${canReview}" th:action="@{/food/{id}/review(id=${food.id})}" method="post">
+                    <div class="review-form-head">
+                        <strong th:text="${myReview != null} ? 'Perbarui ulasanmu' : 'Tulis ulasanmu'">Tulis ulasanmu</strong>
+                        <span class="form-hint" th:if="${myReview != null}">Ulasanmu untuk menu ini sudah tersimpan.</span>
+                        <span class="form-hint" th:unless="${myReview != null}">Bagikan pengalamanmu tentang menu ini.</span>
+                    </div>
+                    <div class="star-input">
+                        <input type="radio" id="star5" name="rating" value="5" th:checked="${myReview == null or myReview.rating == 5}">
+                        <label for="star5" title="5 bintang">★</label>
+                        <input type="radio" id="star4" name="rating" value="4" th:checked="${myReview != null and myReview.rating == 4}">
+                        <label for="star4" title="4 bintang">★</label>
+                        <input type="radio" id="star3" name="rating" value="3" th:checked="${myReview != null and myReview.rating == 3}">
+                        <label for="star3" title="3 bintang">★</label>
+                        <input type="radio" id="star2" name="rating" value="2" th:checked="${myReview != null and myReview.rating == 2}">
+                        <label for="star2" title="2 bintang">★</label>
+                        <input type="radio" id="star1" name="rating" value="1" th:checked="${myReview != null and myReview.rating == 1}">
+                        <label for="star1" title="1 bintang">★</label>
+                    </div>
+                    <textarea class="form-control" name="comment" maxlength="500" rows="3"
+                              placeholder="Ceritakan rasa, porsi, atau packaging yang kamu dapat..."
+                              th:text="${myReview != null ? myReview.comment : ''}">Ulasan</textarea>
+                    <button class="btn btn-primary" type="submit"
+                            th:text="${myReview != null} ? 'Perbarui Ulasan' : 'Kirim Ulasan'">Kirim Ulasan</button>
+                </form>
+
+                <div class="review-form review-form-locked" th:unless="${canReview}">
+                    <strong th:text="${isAuthenticated} ? 'Belum bisa ulasan menu ini' : 'Login untuk menulis ulasan'">Login untuk menulis ulasan</strong>
+                    <span class="form-hint" th:if="${isAuthenticated}">Ulasan bisa diberikan setelah menu ini selesai kamu pesan.</span>
+                    <a class="btn btn-ghost btn-sm" th:if="${!isAuthenticated}" th:href="@{/login}">Login</a>
+                </div>
+
+                <div class="review-list" th:if="${!#lists.isEmpty(reviews)}">
+                    <article class="review-item" th:each="r : ${reviews}">
+                        <div class="review-avatar"
+                             th:text="${#strings.substring(#strings.toUpperCase(r.user.fullName),0,1)}">P</div>
+                        <div class="review-item-body">
+                            <div class="review-item-head">
+                                <strong th:text="${r.user.fullName}">Pelanggan</strong>
+                                <span class="review-item-date"
+                                      th:text="${#temporals.format(r.createdAt, 'dd MMM yyyy')}">01 Jan 2026</span>
+                            </div>
+                            <span th:replace="~{fragments/rating :: stars(${r.rating})}"></span>
+                            <p th:if="${r.comment != null and !r.comment.isBlank()}" th:text="${r.comment}">Ulasan</p>
+                        </div>
+                        <span class="badge badge-outline" th:if="${myReview != null and myReview.id == r.id}">Ulasanmu</span>
+                    </article>
+                </div>
+                <div class="empty-state" th:if="${#lists.isEmpty(reviews)}" style="padding:36px 20px">
+                    <h3>Belum ada ulasan</h3>
+                    <p>Jadilah pelanggan pertama yang menilai menu ini.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<th:block th:replace="~{fragments/footer}"></th:block>
+<script>
+function adj(d) {
+  var q = document.getElementById("detailQty");
+  var v = parseInt(q.value) || 1;
+  v = Math.max(1, Math.min(99, v + d));
+  q.value = v;
+}
+</script>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

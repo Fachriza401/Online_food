@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: adminHead('Pesanan')}"></head>
+<body>
+<div class="layout">
+    <th:block th:replace="~{fragments/admin-layout :: sidebar('orders')}"></th:block>
+    <div class="main">
+        <th:block th:replace="~{fragments/admin-layout :: topbar('Pesanan')}"></th:block>
+        <div class="content">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center">
+                <strong style="font-size:14px">Filter status:</strong>
+                <form action="/admin/orders" method="get" style="display:contents">
+                    <select class="form-control" id="orderStatusFilter" name="status" style="width:auto;min-width:200px">
+                        <option value="" th:selected="${selectedStatus == null}">Semua Status</option>
+                        <option th:each="s : ${statuses}" th:value="${s.name()}"
+                                th:text="${s.label} + ' (' + ${statusCounts[s]} + ')'"
+                                th:selected="${selectedStatus == s}">Status</option>
+                    </select>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Kode</th>
+                            <th>Pelanggan</th>
+                            <th>Tanggal</th>
+                            <th>Total</th>
+                            <th>Bayar</th>
+                            <th>Status</th>
+                            <th style="text-align:right">Aksi</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="order : ${orders.content}">
+                            <td><strong th:text="${order.orderCode}" style="color:var(--primary-dark)">ORD-..</strong></td>
+                            <td>
+                                <strong th:text="${order.customerName}">Nama</strong>
+                                <div class="table-note" th:text="${order.customerPhone}">08..</div>
+                            </td>
+                            <td th:text="${#temporals.format(order.createdAt, 'dd MMM, HH:mm')}">-</td>
+                            <td>Rp <span th:text="${#numbers.formatInteger(order.totalAmount, 3, 'POINT')}">0</span></td>
+                            <td th:text="${order.paymentMethod.label}">COD</td>
+                            <td><span class="badge" th:classappend="${order.status.badgeClass}" th:text="${order.status.label}">Status</span></td>
+                            <td style="text-align:right"><a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn-pill outline sm">Proses</a></td>
+                        </tr>
+                        <tr th:if="${orders.totalElements == 0}">
+                            <td colspan="7" class="table-note" style="text-align:center;padding:30px">Tidak ada pesanan dengan filter ini.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" style="padding:16px 20px" th:if="${orders.totalPages > 1}">
+                    <a th:if="${orders.hasPrevious()}"
+                       th:href="@{/admin/orders(page=${orders.number - 1}, status=${selectedStatus != null ? selectedStatus.name() : null})}">←</a>
+                    <span th:text="${orders.number + 1} + ' / ' + ${orders.totalPages}">1/1</span>
+                    <a th:if="${orders.hasNext()}"
+                       th:href="@{/admin/orders(page=${orders.number + 1}, status=${selectedStatus != null ? selectedStatus.name() : null})}">→</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
+</body>
+</html>

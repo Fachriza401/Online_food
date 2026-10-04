@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: adminHead('Pelanggan')}"></head>
+<body>
+<div class="layout">
+    <th:block th:replace="~{fragments/admin-layout :: sidebar('customers')}"></th:block>
+    <div class="main">
+        <th:block th:replace="~{fragments/admin-layout :: topbar('Pelanggan')}"></th:block>
+        <div class="content">
+            <div class="panel">
+                <div class="panel-head">
+                    <h3 class="panel-title">Daftar Pelanggan</h3>
+                    <span class="table-note" th:text="${#lists.size(customers)} + ' pelanggan'">0 pelanggan</span>
+                </div>
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Pelanggan</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Telepon</th>
+                            <th>Terdaftar</th>
+                            <th>Total Pesanan</th>
+                            <th>Total Belanja</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="row : ${customers}">
+                            <td>
+                                <span style="display:inline-flex;align-items:center;gap:10px">
+                                    <span class="admin-avatar" style="width:34px;height:34px;font-size:14px"
+                                          th:text="${#strings.substring(#strings.toUpperCase(row[1]),0,1)}">U</span>
+                                    <strong th:text="${row[1]}">Nama</strong>
+                                </span>
+                            </td>
+                            <td th:text="${'@' + row[2]}">@user</td>
+                            <td th:text="${row[3]}">email</td>
+                            <td th:text="${row[4]}">08..</td>
+                            <td th:text="${#temporals.format(row[5], 'dd MMM yyyy')}">-</td>
+                            <td th:text="${row[6]}">0</td>
+                            <td>Rp <span th:text="${#numbers.formatInteger(row[7], 3, 'POINT')}">0</span></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(customers)}">
+                            <td colspan="7" class="table-note" style="text-align:center;padding:30px">Belum ada pelanggan terdaftar.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
+</body>
+</html>

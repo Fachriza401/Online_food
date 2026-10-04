@@ -1,0 +1,8 @@
+<div th:fragment="alerts" class="toast-container">
+    <div class="toast success toast-auto" th:if="${success}" th:text="${success}"></div>
+    <div class="toast error toast-auto" th:if="${error}" th:text="${error}"></div>
+    <div class="toast info toast-auto" th:if="${info}" th:text="${info}"></div>
+    <div class="toast info toast-auto" th:if="${param.registered}" th:text="'Pendaftaran berhasil. Silakan login.'"></div>
+    <div class="toast info toast-auto" th:if="${param.logout}" th:text="'Anda telah keluar.'"></div>
+    <div class="toast info toast-auto" th:if="${param.empty}" th:text="'Keranjang masih kosong.'"></div>
+</div>

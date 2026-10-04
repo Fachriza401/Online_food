@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Pesanan Berhasil')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar}"></th:block>
+
+<div class="auth-wrap" style="min-height:calc(100vh - 220px)">
+    <div style="background:#fff;border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow-card);width:100%;max-width:720px;padding:40px;text-align:center">
+        <div style="width:76px;height:76px;border-radius:50%;background:var(--success-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 18px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <h1 style="margin:0 0 8px;font-size:28px;font-weight:800">Pesanan Berhasil Dibuat!</h1>
+        <p style="color:var(--text-secondary);margin:0 0 22px">
+            Terima kasih, <strong th:text="${order.customerName}">nama</strong>. Pesanan Anda sedang kami proses.
+        </p>
+
+        <div style="display:inline-flex;flex-direction:column;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:18px 32px;margin-bottom:24px">
+            <span style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);font-weight:700">Kode Pesanan</span>
+            <span style="font-size:22px;font-weight:800;color:var(--primary-dark)" th:text="${order.orderCode}">ORD-....</span>
+        </div>
+
+        <div style="text-align:left;background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px">
+            <div th:each="item : ${order.items}" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--border);font-size:14px">
+                <span style="color:var(--text-secondary)"><strong th:text="${item.quantity}">1</strong> × <span th:text="${item.foodName}">Nama</span></span>
+                <span>Rp <span th:text="${#numbers.formatInteger(item.subtotal, 3, 'POINT')}">0</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;color:var(--text-secondary)">
+                <span>Subtotal</span><span>Rp <span th:text="${#numbers.formatInteger(order.subtotal, 3, 'POINT')}">0</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;color:var(--text-secondary)">
+                <span>Ongkir</span>
+                <span th:if="${order.shippingFee > 0}">Rp <span th:text="${#numbers.formatInteger(order.shippingFee, 3, 'POINT')}">0</span></span>
+                <span th:unless="${order.shippingFee > 0}">Gratis</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:18px;font-weight:800">
+                <span>Total</span><span style="color:var(--primary-dark)">Rp <span th:text="${#numbers.formatInteger(order.totalAmount, 3, 'POINT')}">0</span></span>
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+            <a href="/orders" class="btn btn-primary">Lihat Pesanan Saya</a>
+            <a href="/menu" class="btn btn-ghost">Pesan Lagi</a>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/footer}"></th:block>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

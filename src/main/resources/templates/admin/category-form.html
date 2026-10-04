@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: adminHead(${mode == 'create' ? 'Tambah Kategori' : 'Edit Kategori'})}"></head>
+<body>
+<div class="layout">
+    <th:block th:replace="~{fragments/admin-layout :: sidebar('categories')}"></th:block>
+    <div class="main">
+        <th:block th:replace="~{fragments/admin-layout :: topbar(${mode == 'create' ? 'Tambah Kategori' : 'Edit Kategori'})}"></th:block>
+        <div class="content" style="max-width:640px">
+            <div class="panel">
+                <div class="panel-head">
+                    <h3 class="panel-title" th:text="${mode == 'create' ? 'Form Tambah Kategori' : 'Form Edit Kategori'}">Form</h3>
+                    <a href="/admin/categories" class="btn-pill outline">← Kembali</a>
+                </div>
+                <div class="panel-body">
+                    <div class="alert alert-danger" th:if="${error}" th:text="${error}">Error</div>
+                    <form th:action="${formAction}"
+                          th:object="${categoryForm}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <div class="form-group">
+                            <label class="form-label" for="name">Nama Kategori *</label>
+                            <input class="form-control" type="text" id="name" th:field="*{name}" required placeholder="mis. Makanan Pembuka">
+                            <p class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="description">Deskripsi</label>
+                            <textarea class="form-control" id="description" th:field="*{description}"
+                                      placeholder="Deskripsi singkat kategori"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="imageUrl">URL Foto Kategori</label>
+                            <input class="form-control" type="text" id="imageUrl" th:field="*{imageUrl}"
+                                   placeholder="mis. /images/foods/nasi-goreng-spesial.png">
+                            <p class="form-hint">Gunakan path foto statis atau URL gambar yang mengizinkan penggunaan.</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-check" style="padding:12px;border:1.5px solid var(--border);border-radius:10px">
+                                <input type="checkbox" th:field="*{active}">
+                                <span>Kategori aktif (tampil di situs)</span>
+                            </label>
+                        </div>
+                        <div style="display:flex;gap:12px">
+                            <button type="submit" class="btn-pill primary" style="padding:12px 28px">Simpan</button>
+                            <a href="/admin/categories" class="btn-pill outline" style="padding:12px 28px">Batal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
+</body>
+</html>

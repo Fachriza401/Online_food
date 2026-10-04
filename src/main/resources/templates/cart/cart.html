@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head('Keranjang')}"></head>
+<body>
+<th:block th:replace="~{fragments/navbar}"></th:block>
+<th:block th:replace="~{fragments/alerts}"></th:block>
+
+<div class="page-head">
+    <div class="container">
+        <nav class="breadcrumb"><a href="/">Beranda</a> <span class="sep">/</span> <span>Keranjang</span></nav>
+        <h2 class="page-title">Keranjang Belanja</h2>
+    </div>
+</div>
+
+<section class="section" style="padding-top:18px">
+    <div class="container">
+        <div class="alert alert-danger" th:if="${cart != null and cart.hasUnavailableItem()}">
+            Ada menu yang statusnya berubah menjadi tidak tersedia. Hapus dari keranjang agar bisa melanjutkan pemesanan.
+        </div>
+
+        <div class="cart-layout" th:if="${cart != null and !cart.items.isEmpty()}">
+            <div>
+                <div class="cart-item" th:each="item : ${cart.items}">
+                    <a th:href="@{/food/{id}(id=${item.food.id})}">
+                        <img th:src="${item.food.imageUrl}" th:alt="${item.food.name}" loading="lazy">
+                    </a>
+                    <div class="cart-item-info">
+                        <h3 class="cart-item-name" th:text="${item.food.name}">Nama</h3>
+                        <div class="cart-item-cat" th:if="${item.food.category != null}"
+                             th:text="${item.food.category.name}">Kategori</div>
+                        <div class="cart-item-price">
+                            Rp <span th:text="${#numbers.formatInteger(item.food.price, 3, 'POINT')}">12.000</span>
+                            × <span th:text="${item.quantity}">1</span>
+                        </div>
+                        <span class="badge badge-cancelled" th:if="${!item.food.available}" style="margin-top:6px">Habis</span>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
+                        <form th:action="@{/cart/update}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="itemId" th:value="${item.id}">
+                            <div class="qty-control">
+                                <button type="submit" name="quantity" th:value="${item.quantity - 1}">−</button>
+                                <span class="qty" th:text="${item.quantity}">1</span>
+                                <button type="submit" name="quantity" th:value="${item.quantity + 1}">+</button>
+                            </div>
+                        </form>
+                        <form th:action="@{/cart/remove}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="itemId" th:value="${item.id}">
+                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                        </form>
+                    </div>
+                </div>
+                <a href="/menu" class="btn btn-ghost">← Lanjut Belanja</a>
+            </div>
+
+            <aside class="summary-card">
+                <h3 style="margin:0 0 10px;font-size:19px">Ringkasan</h3>
+                <div class="summary-row"><span>Subtotal</span>
+                    <span>Rp <span th:text="${#numbers.formatInteger(cart.subtotal, 3, 'POINT')}">0</span></span></div>
+                <div class="summary-row"><span>Ongkir</span>
+                    <span th:if="${shippingFee > 0}">Rp <span th:text="${#numbers.formatInteger(shippingFee, 3, 'POINT')}">10.000</span></span>
+                    <span th:unless="${shippingFee > 0}">Gratis</span></div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span>Rp <span th:text="${#numbers.formatInteger(total, 3, 'POINT')}">0</span></span>
+                </div>
+                <p class="form-hint" style="font-size:12px;color:var(--text-secondary);margin:8px 0 16px">
+                    Ongkir gratis untuk belanja Rp
+                    <span th:text="${#numbers.formatInteger(freeShippingThreshold, 3, 'POINT')}">100.000</span> ke atas.
+                </p>
+                <a th:href="@{/checkout}" class="btn btn-primary btn-block"
+                   th:classappend="${cart.hasUnavailableItem()} ? 'disabled'"
+                   th:onclick="${cart.hasUnavailableItem()} ? 'return false'">Lanjut ke Checkout →</a>
+            </aside>
+        </div>
+
+        <div class="empty-state" th:if="${cart == null or cart.items.isEmpty()}">
+            <div class="icon"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+            <h3>Keranjang masih kosong</h3>
+            <p>Yuk tambahkan menu favoritmu ke keranjang.</p>
+            <a href="/menu" class="btn btn-primary">Jelajahi Menu</a>
+        </div>
+    </div>
+</section>
+
+<th:block th:replace="~{fragments/footer}"></th:block>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
