@@ -28,12 +28,15 @@ com\foodordering\controller\AuthController.class
 com\foodordering\model\PaymentMethod.class
 com\foodordering\controller\CheckoutController.class
 com\foodordering\service\ReviewService.class
+com\foodordering\config\StaticCacheFilter.class
 com\foodordering\repository\PaymentRepository.class
 com\foodordering\security\CurrentUser.class
 com\foodordering\controller\AdminController.class
+com\foodordering\util\BackUrl.class
 com\foodordering\FoodOrderingApplication.class
 com\foodordering\service\OrderService.class
 com\foodordering\controller\NotificationController.class
+com\foodordering\service\ProfileService$1.class
 com\foodordering\model\Food.class
 com\foodordering\controller\CartController.class
 com\foodordering\controller\ReviewController.class
@@ -60,6 +63,7 @@ com\foodordering\exception\BadRequestException.class
 com\foodordering\config\DataInitializer.class
 com\foodordering\service\DeliveryTrackingService.class
 com\foodordering\repository\UserRepository.class
+com\foodordering\controller\ErrorPageController.class
 com\foodordering\repository\CartItemRepository.class
 com\foodordering\model\OrderItem.class
 com\foodordering\model\Cart.class

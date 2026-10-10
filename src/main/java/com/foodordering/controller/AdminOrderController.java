@@ -48,6 +48,7 @@ public class AdminOrderController {
         model.addAttribute("order", order);
         model.addAttribute("payment", orderService.findPayment(order));
         model.addAttribute("statuses", OrderStatus.values());
+        model.addAttribute("allowedStatuses", orderService.allowedTransitions(order.getStatus()));
         model.addAttribute("statusFlow", orderService.statusFlow());
         model.addAttribute("statusIndex", orderService.statusIndex(order.getStatus()));
         return "admin/order-detail";

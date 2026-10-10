@@ -1,6 +1,9 @@
 package com.foodordering.dto;
 
+import com.foodordering.model.PaymentMethod;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -21,6 +24,9 @@ public class CheckoutRequest {
 
     @Size(max = 500)
     private String note;
+
+    @NotNull(message = "Pilih metode pembayaran")
+    private PaymentMethod paymentMethod = PaymentMethod.COD;
 
     public String getCustomerName() {
         return customerName;
@@ -52,5 +58,13 @@ public class CheckoutRequest {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

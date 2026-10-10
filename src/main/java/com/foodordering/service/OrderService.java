@@ -54,12 +54,15 @@ public class OrderService {
      */
     @Transactional
     public Order placeOrder(User user, CheckoutRequest request) {
-        Cart cart = cartService.getCart(user);
+        Cart cart = cartService.lockCart(user);
         if (cart == null || cart.getItems().isEmpty()) {
             throw new BadRequestException("Keranjang masih kosong");
         }
 
         for (CartItem item : cart.getItems()) {
+            if (item.getQuantity() < 1) {
+                throw new BadRequestException("Jumlah menu \"" + item.getFood().getName() + "\" tidak valid");
+            }
             if (!item.getFood().isAvailable()) {
                 throw new BadRequestException(
                         "Menu \"" + item.getFood().getName() + "\" sedang tidak tersedia, hapus dari keranjang");
@@ -73,6 +76,8 @@ public class OrderService {
         order.setCustomerPhone(request.getCustomerPhone());
         order.setCustomerAddress(request.getCustomerAddress());
         order.setNote(request.getNote());
+        order.setPaymentMethod(request.getPaymentMethod() != null
+                ? request.getPaymentMethod() : com.foodordering.model.PaymentMethod.COD);
 
         BigDecimal subtotal = BigDecimal.ZERO;
         for (CartItem item : cart.getItems()) {
@@ -131,6 +136,10 @@ public class OrderService {
     public Order updateStatus(Long orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BadRequestException("Pesanan tidak ditemukan"));
+        if (!canTransition(order.getStatus(), status)) {
+            throw new BadRequestException("Status " + order.getStatus().getLabel()
+                    + " tidak dapat diubah menjadi " + status.getLabel());
+        }
         order.setStatus(status);
         if (status == OrderStatus.COMPLETED) {
             paymentRepository.findByOrderId(orderId).ifPresent(p -> p.setStatus(com.foodordering.model.PaymentStatus.PAID));
@@ -144,6 +153,38 @@ public class OrderService {
                 "Pesanan " + saved.getOrderCode() + ": " + status.getLabel(),
                 "/orders/" + saved.getId());
         return saved;
+    }
+
+    /**
+     * Transisi status yang diizinkan: satu langkah maju dalam alur normal
+     * (PENDING &rarr; CONFIRMED &rarr; PREPARING &rarr; DELIVERING &rarr; COMPLETED)
+     * atau membatalkan pesanan yang belum selesai. Status terminal (COMPLETED /
+     * CANCELLED) tidak dapat diubah lagi.
+     */
+    public boolean canTransition(OrderStatus from, OrderStatus to) {
+        if (from == null || to == null || from == to) {
+            return false;
+        }
+        if (from == OrderStatus.COMPLETED || from == OrderStatus.CANCELLED) {
+            return false;
+        }
+        if (to == OrderStatus.CANCELLED) {
+            return true;
+        }
+        int fromIndex = FLOW.indexOf(from);
+        int toIndex = FLOW.indexOf(to);
+        return fromIndex >= 0 && toIndex == fromIndex + 1;
+    }
+
+    /** Daftar status yang boleh dipilih untuk menggantikan status saat ini. */
+    public java.util.List<OrderStatus> allowedTransitions(OrderStatus from) {
+        java.util.List<OrderStatus> allowed = new java.util.ArrayList<>();
+        for (OrderStatus status : OrderStatus.values()) {
+            if (canTransition(from, status)) {
+                allowed.add(status);
+            }
+        }
+        return allowed;
     }
 
     @Transactional(readOnly = true)
@@ -181,6 +222,40 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<Order> findByUserAndStatuses(User user,
+            java.util.Collection<OrderStatus> statuses, int page, int size) {
+        return orderRepository.findByUserIdAndStatusInOrderByCreatedAtDesc(user.getId(), statuses,
+                org.springframework.data.domain.PageRequest.of(page, size));
+    }
+
+    /**
+     * Menandai pembayaran non-COD sebagai lunas. Ini adalah simulasi gerbang
+     * pembayaran: uang tidak benar-benar berpindah, hanya status yang diperbarui.
+     */
+    @Transactional
+    public Order markPaid(User user, Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BadRequestException("Pesanan tidak ditemukan"));
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new BadRequestException("Akses pesanan ditolak");
+        }
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new BadRequestException("Pesanan sudah dibatalkan");
+        }
+        Payment payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new BadRequestException("Data pembayaran tidak ditemukan"));
+        if (payment.getMethod() == com.foodordering.model.PaymentMethod.COD) {
+            throw new BadRequestException("Metode Bayar di Tempat dibayar saat pesanan tiba");
+        }
+        if (payment.getStatus() != com.foodordering.model.PaymentStatus.PAID) {
+            payment.setStatus(com.foodordering.model.PaymentStatus.PAID);
+            payment.setPaidAt(LocalDateTime.now());
+            paymentRepository.save(payment);
+        }
+        return order;
+    }
+
+    @Transactional(readOnly = true)
     public Payment findPayment(Order order) {
         return paymentRepository.findByOrderId(order.getId()).orElse(null);
     }
@@ -194,6 +269,14 @@ public class OrderService {
     public static final java.util.List<OrderStatus> FLOW = java.util.List.of(
             OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PREPARING,
             OrderStatus.DELIVERING, OrderStatus.COMPLETED);
+
+    /** Status yang masih berjalan — ditampilkan pada tab "Pesanan Aktif". */
+    public static final java.util.List<OrderStatus> ACTIVE_STATUSES = java.util.List.of(
+            OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PREPARING, OrderStatus.DELIVERING);
+
+    /** Status akhir — otomatis masuk ke "Riwayat Pesanan". */
+    public static final java.util.List<OrderStatus> HISTORY_STATUSES = java.util.List.of(
+            OrderStatus.COMPLETED, OrderStatus.CANCELLED);
 
     public int statusIndex(OrderStatus status) {
         return FLOW.indexOf(status);

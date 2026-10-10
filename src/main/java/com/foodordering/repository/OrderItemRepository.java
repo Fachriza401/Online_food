@@ -27,4 +27,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             + "WHERE oi.order.user.id = :userId AND oi.food.id = :foodId "
             + "AND oi.order.status = com.foodordering.model.OrderStatus.COMPLETED")
     boolean existsCompletedPurchase(@Param("userId") Long userId, @Param("foodId") Long foodId);
+
+    boolean existsByFoodId(Long foodId);
 }

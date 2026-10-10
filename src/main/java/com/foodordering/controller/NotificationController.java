@@ -12,6 +12,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.foodordering.model.User;
 import com.foodordering.security.CurrentUser;
 import com.foodordering.service.NotificationService;
+import com.foodordering.util.BackUrl;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class NotificationController {
@@ -36,8 +39,8 @@ public class NotificationController {
     }
 
     @PostMapping("/notifications/read-all")
-    public String markAllRead() {
+    public String markAllRead(HttpServletRequest request) {
         notificationService.markAllRead(CurrentUser.get());
-        return "redirect:/";
+        return "redirect:" + BackUrl.path(request, "/");
     }
 }

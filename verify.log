@@ -1,0 +1,42 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-10-05T00:13:55.416+07:00  INFO 29568 --- [online-food-ordering] [           main] c.foodordering.FoodOrderingApplication   : Starting FoodOrderingApplication v1.0.0 using Java 21.0.5 with PID 29568 (D:\Online_Food_Ordering_System\target\online-food-ordering-1.0.0.jar started by ASUS in D:\Online_Food_Ordering_System)
+2026-10-05T00:13:55.421+07:00  INFO 29568 --- [online-food-ordering] [           main] c.foodordering.FoodOrderingApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-10-05T00:13:56.501+07:00  INFO 29568 --- [online-food-ordering] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-05T00:13:56.625+07:00  INFO 29568 --- [online-food-ordering] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 104 ms. Found 12 JPA repository interfaces.
+2026-10-05T00:13:57.695+07:00  INFO 29568 --- [online-food-ordering] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-10-05T00:13:57.749+07:00  INFO 29568 --- [online-food-ordering] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-05T00:13:57.749+07:00  INFO 29568 --- [online-food-ordering] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-10-05T00:13:57.810+07:00  INFO 29568 --- [online-food-ordering] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-05T00:13:57.812+07:00  INFO 29568 --- [online-food-ordering] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2333 ms
+2026-10-05T00:13:57.870+07:00  INFO 29568 --- [online-food-ordering] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-05T00:14:02.683+07:00  INFO 29568 --- [online-food-ordering] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn1: url=jdbc:h2:file:./data/fooddb user=SA
+2026-10-05T00:14:02.685+07:00  INFO 29568 --- [online-food-ordering] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-05T00:14:02.712+07:00  INFO 29568 --- [online-food-ordering] [           main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./data/fooddb'
+2026-10-05T00:14:03.103+07:00  INFO 29568 --- [online-food-ordering] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-05T00:14:03.337+07:00  INFO 29568 --- [online-food-ordering] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-10-05T00:14:03.466+07:00  INFO 29568 --- [online-food-ordering] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-05T00:14:04.400+07:00  INFO 29568 --- [online-food-ordering] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-05T00:14:07.210+07:00  INFO 29568 --- [online-food-ordering] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-05T00:14:07.333+07:00  INFO 29568 --- [online-food-ordering] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-05T00:14:08.181+07:00  INFO 29568 --- [online-food-ordering] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-05T00:14:10.649+07:00  WARN 29568 --- [online-food-ordering] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-10-05T00:14:10.736+07:00  INFO 29568 --- [online-food-ordering] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-10-05T00:14:10.966+07:00  INFO 29568 --- [online-food-ordering] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2026-10-05T00:14:12.006+07:00  INFO 29568 --- [online-food-ordering] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-10-05T00:14:12.041+07:00  INFO 29568 --- [online-food-ordering] [           main] c.foodordering.FoodOrderingApplication   : Started FoodOrderingApplication in 17.205 seconds (process running for 17.909)
+2026-10-05T00:14:12.361+07:00  INFO 29568 --- [online-food-ordering] [           main] c.foodordering.config.DataInitializer    : Seeding selesai. Admin: admin/admin123 | Customer demo: customer/customer123 | Ulasan demo: rina & bayu (customer123)
+2026-10-05T00:14:40.586+07:00  INFO 29568 --- [online-food-ordering] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-05T00:14:40.586+07:00  INFO 29568 --- [online-food-ordering] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-05T00:14:40.586+07:00  INFO 29568 --- [online-food-ordering] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-10-05T00:55:12.245+07:00  WARN 29568 --- [online-food-ordering] [l-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=4m8s892ms194µs100ns).
+2026-10-05T00:59:07.386+07:00  WARN 29568 --- [online-food-ordering] [l-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=55s63ms62µs400ns).
+2026-10-05T01:04:13.608+07:00  WARN 29568 --- [online-food-ordering] [l-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m36s140ms25µs900ns).

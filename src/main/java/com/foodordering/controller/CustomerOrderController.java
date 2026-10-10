@@ -25,11 +25,24 @@ public class CustomerOrderController {
     }
 
     @GetMapping
-    public String list(@RequestParam(value = "page", defaultValue = "0") int page, Model model) {
+    public String list(@RequestParam(value = "tab", defaultValue = "active") String tab,
+                       @RequestParam(value = "page", defaultValue = "0") int page, Model model) {
         model.addAttribute("activePage", "orders");
-        Page<Order> orders = orderService.findByUser(CurrentUser.get(), page, 10);
+        boolean history = "history".equals(tab);
+        Page<Order> orders = orderService.findByUserAndStatuses(CurrentUser.get(),
+                history ? com.foodordering.service.OrderService.HISTORY_STATUSES
+                        : com.foodordering.service.OrderService.ACTIVE_STATUSES,
+                page, 10);
         model.addAttribute("orders", orders);
+        model.addAttribute("tab", history ? "history" : "active");
         return "order/list";
+    }
+
+    @PostMapping("/{id}/pay")
+    public String pay(@PathVariable("id") Long id, RedirectAttributes ra) {
+        orderService.markPaid(CurrentUser.get(), id);
+        ra.addFlashAttribute("success", "Pembayaran berhasil dikonfirmasi");
+        return "redirect:/orders/" + id;
     }
 
     @GetMapping("/{id}")

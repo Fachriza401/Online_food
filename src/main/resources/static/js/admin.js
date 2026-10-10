@@ -166,3 +166,12 @@
     setInterval(pollUnread, 30000);
   }
 })();
+// Auto-dismiss flash message admin
+var alertFlashAdmin = document.querySelector('.toast-auto');
+if (alertFlashAdmin) {
+  setTimeout(function () {
+    alertFlashAdmin.style.transition = 'opacity .4s ease';
+    alertFlashAdmin.style.opacity = '0';
+    setTimeout(function () { alertFlashAdmin.remove(); }, 400);
+  }, 4200);
+}

@@ -15,6 +15,11 @@
 
 <section class="section" style="padding-top:18px">
     <div class="container">
+        <div class="tabs">
+            <a th:href="@{/orders(tab='active')}" th:classappend="${tab == 'active'} ? 'active'">Pesanan Aktif</a>
+            <a th:href="@{/orders(tab='history')}" th:classappend="${tab == 'history'} ? 'active'">Riwayat Pesanan</a>
+        </div>
+
         <div class="table-wrap" th:if="${orders.hasContent()}">
             <table class="table">
                 <thead>
@@ -39,16 +44,16 @@
                 </tbody>
             </table>
             <div class="pagination" th:if="${orders.totalPages > 1}">
-                <a th:if="${orders.hasPrevious()}" th:href="@{/orders(page=${orders.number - 1})}">←</a>
+                <a th:if="${orders.hasPrevious()}" th:href="@{/orders(tab=${tab}, page=${orders.number - 1})}">←</a>
                 <span class="current" th:text="${orders.number + 1}">1</span>
-                <a th:if="${orders.hasNext()}" th:href="@{/orders(page=${orders.number + 1})}">→</a>
+                <a th:if="${orders.hasNext()}" th:href="@{/orders(tab=${tab}, page=${orders.number + 1})}">→</a>
             </div>
         </div>
 
         <div class="empty-state" th:unless="${orders.hasContent()}">
             <div class="icon"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
-            <h3>Belum ada pesanan</h3>
-            <p>Mulai pesan makanan favoritmu sekarang.</p>
+            <h3 th:text="${tab == 'history'} ? 'Belum ada riwayat pesanan' : 'Tidak ada pesanan aktif'">Belum ada pesanan</h3>
+            <p th:text="${tab == 'history'} ? 'Pesanan yang sudah selesai akan otomatis muncul di sini.' : 'Mulai pesan makanan favoritmu sekarang.'">Mulai pesan makanan favoritmu sekarang.</p>
             <a href="/menu" class="btn btn-primary">Jelajahi Menu</a>
         </div>
     </div>

@@ -34,16 +34,19 @@ public class GlobalModelAdvice {
                 && !(auth.getPrincipal() instanceof String);
         model.addAttribute("isAuthenticated", authenticated);
         model.addAttribute("isAdmin", authenticated && hasRole(auth, "ROLE_ADMIN"));
+        model.addAttribute("isCustomer", authenticated && hasRole(auth, "ROLE_CUSTOMER"));
         model.addAttribute("currentUsername",
                 authenticated ? auth.getName() : "");
         if (authenticated && auth.getPrincipal() instanceof UserPrincipal principal) {
             User user = principal.getUser();
             model.addAttribute("currentUser", user);
             model.addAttribute("cartCount", cartService.getCartItemCount(user));
+            model.addAttribute("cartTotal", cartService.getCartSubtotal(user));
             model.addAttribute("notifUnread", notificationService.unreadCount(user));
             model.addAttribute("notifList", notificationService.recent(user));
         } else {
             model.addAttribute("cartCount", 0);
+            model.addAttribute("cartTotal", java.math.BigDecimal.ZERO);
             model.addAttribute("notifUnread", 0);
             model.addAttribute("notifList", java.util.List.of());
         }

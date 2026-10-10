@@ -22,10 +22,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Page<Order> findByStatusOrderByCreatedAtDesc(OrderStatus status, Pageable pageable);
 
+    Page<Order> findByUserIdAndStatusInOrderByCreatedAtDesc(Long userId,
+            java.util.Collection<OrderStatus> statuses, Pageable pageable);
+
     long countByStatus(OrderStatus status);
 
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status <> 'CANCELLED'")
-    Double sumTotalNonCancelled();
+    java.math.BigDecimal sumTotalNonCancelled();
 
     @Query("SELECT o FROM Order o WHERE o.createdAt BETWEEN :start AND :end ORDER BY o.createdAt ASC")
     List<Order> findAllBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);

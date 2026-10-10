@@ -20,18 +20,19 @@
                     <a th:href="@{/menu}" class="btn btn-primary">Pesan Sekarang</a>
                     <a th:href="@{/menu}" class="btn btn-light">Lihat Menu</a>
                 </div>
-                <div style="display:flex;gap:32px;margin-top:34px;flex-wrap:wrap">
+                <div class="hero-stats">
                     <div>
-                        <div style="font-size:24px;font-weight:800" th:text="${totalMenus} + '+'">14+</div>
-                        <div style="color:var(--text-secondary);font-size:13px">Menu Lezat</div>
+                        <div class="hero-stat-value" th:attr="data-count=${totalMenus}" data-suffix="+"
+                             th:text="${totalMenus} + '+'">21+</div>
+                        <div class="hero-stat-label">Menu Lezat</div>
                     </div>
                     <div>
-                        <div style="font-size:24px;font-weight:800">30&rsquo;</div>
-                        <div style="color:var(--text-secondary);font-size:13px">Waktu Antar</div>
+                        <div class="hero-stat-value" data-count="30" data-suffix="&rsquo;">30&rsquo;</div>
+                        <div class="hero-stat-label">Waktu Antar</div>
                     </div>
                     <div>
-                        <div style="font-size:24px;font-weight:800">100%</div>
-                        <div style="color:var(--text-secondary);font-size:13px">Hemat &amp; Aman</div>
+                        <div class="hero-stat-value" data-count="100" data-suffix="%">100%</div>
+                        <div class="hero-stat-label">Hemat &amp; Aman</div>
                     </div>
                 </div>
             </div>
@@ -52,8 +53,8 @@
                         </svg>
                     </span>
                     <div>
-                        <div class="label" th:text="${heroFood != null ? 'Menu Terlaris' : 'Menu Terlaris'}">Menu Terlaris</div>
-                        <div class="value" th:text="${heroFood != null ? heroFood.name : 'Nasi Goreng'}">Nasi Goreng</div>
+                        <div class="label">Menu Terlaris</div>
+                        <div class="value">Nasi Goreng Sate Ayam</div>
                     </div>
                 </div>
             </div>
@@ -119,13 +120,16 @@
                     <div class="food-foot">
                         <span class="food-price">Rp <span
                                 th:text="${#numbers.formatInteger(food.price, 3, 'POINT')}">28.000</span></span>
-                        <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post">
+                        <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post"
+                              data-cart-add th:attr="data-ajax-url=@{/cart/api/add}">
                             <input type="hidden" name="foodId" th:value="${food.id}">
                             <input type="hidden" name="quantity" value="1">
                             <button class="add-btn" th:disabled="${!food.available}" title="Tambah ke keranjang" type="submit">+</button>
                         </form>
-                        <a th:if="${!isAuthenticated}" href="/login" class="btn btn-primary btn-sm"
-                           th:disabled="${!food.available}" style="padding:9px 16px">Tambah</a>
+                        <a th:if="${!isAuthenticated and food.available}" href="/login" class="btn btn-primary btn-sm"
+                           style="padding:9px 16px">Tambah</a>
+                        <span th:if="${!isAuthenticated and !food.available}" class="btn btn-ghost btn-sm"
+                              style="padding:9px 16px;opacity:.6;cursor:not-allowed">Habis</span>
                     </div>
                 </div>
             </article>
@@ -139,9 +143,9 @@
         <div class="section-head" style="justify-content:center;text-align:center">
             <div>
                 <div class="section-eyebrow">Tentang Kami</div>
-                <h2 class="section-title">Kenapa Memesan di Toko Kita?</h2>
+                <h2 class="section-title">Kenapa Memesan di RM KAK ROS?</h2>
                 <p class="section-desc" style="margin:8px auto 0;max-width:640px">
-                    Toko Kita adalah layanan pemesanan makanan online yang lahir dari dapur rumahan.
+                    RM KAK ROS adalah layanan pemesanan makanan online yang lahir dari dapur rumahan.
                     Kami memasak dari bahan segar setiap hari, menjaga cita rasa tetap konsisten,
                     dan mengantar langsung ke depan pintu Anda.
                 </p>
@@ -152,7 +156,7 @@
             <div class="about-story-text">
                 <h3>Cerita Singkat Kami</h3>
                 <p>
-                    Sejak 2021, Toko Kita berawal dari satu kompor kecil di rumah dan mimpi sederhana:
+                    RM KAK ROS berawal dari dapur rumahan dengan mimpi sederhana:
                     menghadirkan masakan rumahan yang hangat untuk warga sekitar. Berkat kepercayaan
                     pelanggan, kami berkembang menjadi dapur yang melayani ratusan pesanan per bulan —
                     tanpa pernah menurunkan kualitas rasa yang membuat nama kami dikenal.

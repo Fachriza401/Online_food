@@ -44,8 +44,16 @@ public class CheckoutController {
         request.setCustomerName(user.getFullName());
         request.setCustomerPhone(user.getPhone());
         request.setCustomerAddress(user.getAddress());
+        request.setPaymentMethod(com.foodordering.model.PaymentMethod.COD);
         model.addAttribute("checkoutRequest", request);
+        addPaymentMethods(model);
         return "checkout/checkout";
+    }
+
+    private void addPaymentMethods(Model model) {
+        model.addAttribute("codMethods", com.foodordering.model.PaymentMethod.byGroup("cod"));
+        model.addAttribute("ewalletMethods", com.foodordering.model.PaymentMethod.byGroup("ewallet"));
+        model.addAttribute("bankMethods", com.foodordering.model.PaymentMethod.byGroup("bank"));
     }
 
     @PostMapping("/checkout")
@@ -59,6 +67,7 @@ public class CheckoutController {
             model.addAttribute("cart", cart);
             model.addAttribute("shippingFee", orderService.computeShipping(cart.getSubtotal()));
             model.addAttribute("total", cart.getSubtotal().add(orderService.computeShipping(cart.getSubtotal())));
+            addPaymentMethods(model);
             return "checkout/checkout";
         }
         try {
@@ -70,6 +79,7 @@ public class CheckoutController {
             model.addAttribute("cart", cart);
             model.addAttribute("shippingFee", orderService.computeShipping(cart.getSubtotal()));
             model.addAttribute("total", cart.getSubtotal().add(orderService.computeShipping(cart.getSubtotal())));
+            addPaymentMethods(model);
             return "checkout/checkout";
         }
     }

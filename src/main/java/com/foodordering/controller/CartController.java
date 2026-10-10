@@ -1,6 +1,7 @@
 package com.foodordering.controller;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -10,9 +11,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.foodordering.model.Cart;
+import com.foodordering.model.User;
 import com.foodordering.service.CartService;
 import com.foodordering.security.CurrentUser;
 
@@ -39,6 +42,19 @@ public class CartController {
         cartService.addItem(CurrentUser.get(), foodId, quantity);
         ra.addFlashAttribute("success", "Menu ditambahkan ke keranjang");
         return "redirect:/cart";
+    }
+
+    /** Versi AJAX untuk tombol "Tambah" agar keranjang ngambang bisa diperbarui tanpa reload. */
+    @PostMapping("/api/add")
+    @ResponseBody
+    public Map<String, Object> addApi(@RequestParam("foodId") Long foodId,
+                                      @RequestParam(value = "quantity", defaultValue = "1") int quantity) {
+        User user = CurrentUser.get();
+        cartService.addItem(user, foodId, quantity);
+        Map<String, Object> res = new HashMap<>();
+        res.put("count", cartService.getCartItemCount(user));
+        res.put("subtotal", cartService.getCartSubtotal(user));
+        return res;
     }
 
     @GetMapping

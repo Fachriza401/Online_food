@@ -22,6 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT DISTINCT u FROM User u JOIN UserRole ur ON ur.user = u WHERE ur.role.name = :roleName")
     List<User> findAllByRoleName(@Param("roleName") String roleName);
 
+    @Query("SELECT COUNT(DISTINCT u.id) FROM User u JOIN UserRole ur ON ur.user = u "
+            + "WHERE ur.role.name = 'ROLE_CUSTOMER'")
+    long countCustomers();
+
     @Query("SELECT u.id AS id, u.fullName AS nama, u.username AS username, u.email AS email, "
             + "u.phone AS telepon, u.createdAt AS tglDaftar, "
             + "COUNT(o.id) AS jumlahPesanan, COALESCE(SUM(o.totalAmount), 0) AS totalBelanja "

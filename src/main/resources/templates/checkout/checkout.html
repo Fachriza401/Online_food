@@ -50,14 +50,41 @@
 
                     <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px">
                         <h3 style="margin:0 0 14px;font-size:19px;display:flex;align-items:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C2410C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Metode Pembayaran</h3>
-                        <label class="form-check" style="padding:14px;border:1.5px solid var(--primary);background:var(--primary-soft);border-radius:var(--radius-sm)">
-                            <input type="radio" checked>
-                            <div>
-                                <strong>Bayar di Tempat (COD)</strong>
-                                <div style="font-size:12.5px;color:var(--text-secondary)">Pembayaran dilakukan saat pesanan tiba. Tanpa pembayaran di muka.</div>
-                            </div>
-                        </label>
-                        <p class="form-hint" style="margin-top:10px">Pilihan pembayaran digital akan diintegrasikan pada tahap selanjutnya.</p>
+
+                        <div class="pay-group">
+                            <label class="form-check pay-option" th:each="m : ${codMethods}">
+                                <input type="radio" th:field="*{paymentMethod}" th:value="${m}">
+                                <div>
+                                    <div class="pay-name" th:text="${m.label}">Bayar di Tempat</div>
+                                    <div class="pay-desc" th:text="${m.description}">Pembayaran saat pesanan tiba.</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="pay-group">
+                            <div class="pay-group-title">E-Wallet</div>
+                            <label class="form-check pay-option" th:each="m : ${ewalletMethods}">
+                                <input type="radio" th:field="*{paymentMethod}" th:value="${m}">
+                                <div>
+                                    <div class="pay-name" th:text="${m.label}">GoPay</div>
+                                    <div class="pay-desc" th:text="${m.description}">Bayar lewat e-wallet.</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="pay-group">
+                            <div class="pay-group-title">Transfer Bank</div>
+                            <label class="form-check pay-option" th:each="m : ${bankMethods}">
+                                <input type="radio" th:field="*{paymentMethod}" th:value="${m}">
+                                <div>
+                                    <div class="pay-name" th:text="${m.label}">Bank BCA</div>
+                                    <div class="pay-desc" th:text="${m.description}">Transfer / Virtual Account.</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <p class="invalid-feedback" th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}"></p>
+                        <p class="form-hint" style="margin-top:10px">Metode e-wallet &amp; bank akan menampilkan instruksi pembayaran pada halaman detail pesanan.</p>
                     </div>
                 </form>
             </div>

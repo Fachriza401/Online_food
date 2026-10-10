@@ -3,9 +3,11 @@
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title} + ' · Toko Kita'">Toko Kita</title>
-    <meta name="description" content="Toko Kita — sistem pemesanan makanan online. Pesan makanan favoritmu dengan mudah.">
-    <link rel="icon" type="image/png" href="/images/branding/logo.png">
+    <title th:text="${title} + ' · RM KAK ROS'">RM KAK ROS</title>
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}">
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}">
+    <meta name="description" content="RM KAK ROS — sistem pemesanan makanan online. Pesan makanan favoritmu dengan mudah.">
+    <link rel="icon" type="image/png" href="/images/branding/logo.png?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">

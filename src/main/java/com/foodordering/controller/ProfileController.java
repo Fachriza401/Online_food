@@ -40,14 +40,17 @@ public class ProfileController {
     public String update(@Valid @ModelAttribute("user") User form,
                          @RequestParam(name = "photo", required = false) MultipartFile photo,
                          RedirectAttributes ra) {
+        String newAvatarUrl = null;
         try {
-            String newAvatarUrl = null;
             if (photo != null && !photo.isEmpty()) {
                 newAvatarUrl = fileStorageService.storeAvatar(photo, CurrentUser.get().getId());
             }
             profileService.update(CurrentUser.get(), form, newAvatarUrl);
             ra.addFlashAttribute("success", "Profil berhasil diperbarui");
         } catch (BadRequestException e) {
+            if (newAvatarUrl != null) {
+                fileStorageService.deleteIfUploaded(newAvatarUrl);
+            }
             ra.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/profile";

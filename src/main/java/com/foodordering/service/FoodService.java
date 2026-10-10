@@ -12,18 +12,29 @@ import com.foodordering.dto.FoodForm;
 import com.foodordering.exception.BadRequestException;
 import com.foodordering.model.Category;
 import com.foodordering.model.Food;
+import com.foodordering.repository.CartItemRepository;
 import com.foodordering.repository.CategoryRepository;
 import com.foodordering.repository.FoodRepository;
+import com.foodordering.repository.OrderItemRepository;
+import com.foodordering.repository.ReviewRepository;
 
 @Service
 public class FoodService {
 
     private final FoodRepository foodRepository;
     private final CategoryRepository categoryRepository;
+    private final CartItemRepository cartItemRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final ReviewRepository reviewRepository;
 
-    public FoodService(FoodRepository foodRepository, CategoryRepository categoryRepository) {
+    public FoodService(FoodRepository foodRepository, CategoryRepository categoryRepository,
+                       CartItemRepository cartItemRepository, OrderItemRepository orderItemRepository,
+                       ReviewRepository reviewRepository) {
         this.foodRepository = foodRepository;
         this.categoryRepository = categoryRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.reviewRepository = reviewRepository;
     }
 
     @Transactional(readOnly = true)
@@ -85,7 +96,13 @@ public class FoodService {
 
     @Transactional
     public void delete(Long id) {
-        foodRepository.deleteById(id);
+        Food food = findById(id);
+        if (orderItemRepository.existsByFoodId(id) || reviewRepository.countByFoodId(id) > 0) {
+            throw new BadRequestException("Menu \"" + food.getName() + "\" tidak dapat dihapus karena sudah "
+                    + "miliki pesanan atau ulasan. Ubah menu menjadi tidak tersedia saja.");
+        }
+        cartItemRepository.deleteByFoodId(id);
+        foodRepository.delete(food);
     }
 
     private void apply(Food food, FoodForm form) {

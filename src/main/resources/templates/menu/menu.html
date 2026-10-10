@@ -61,7 +61,8 @@
                     <div class="food-foot">
                         <span class="food-price">Rp <span
                                 th:text="${#numbers.formatInteger(food.price, 3, 'POINT')}">25.000</span></span>
-                        <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post">
+                        <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post"
+                              data-cart-add th:attr="data-ajax-url=@{/cart/api/add}">
                             <input type="hidden" name="foodId" th:value="${food.id}">
                             <input type="hidden" name="quantity" value="1">
                             <button class="add-btn" th:disabled="${!food.available}" title="Tambah ke keranjang" type="submit">+</button>

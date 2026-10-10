@@ -93,7 +93,7 @@ img { max-width: 100%; display: block; }
 }
 .navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; color: var(--text); }
-.brand img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #fff; box-shadow: 0 0 0 1.5px var(--border); }
+.brand img { width: 44px; height: 44px; object-fit: contain; }
 .brand .accent { color: var(--primary); }
 .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; }
 .nav-links a {
@@ -146,6 +146,28 @@ img { max-width: 100%; display: block; }
 .hero-deco { position: absolute; z-index: -1; border-radius: 30px; }
 .hero-deco-1 { width: 220px; height: 220px; background: var(--primary-soft); top: -30px; right: -20px; }
 .hero-deco-2 { width: 120px; height: 120px; border: 3px dashed var(--primary); bottom: 30px; right: 40px; opacity: .35; }
+
+/* ---------- Statistik hero + animasi masuk ---------- */
+.hero-stats { display: flex; gap: 32px; margin-top: 34px; flex-wrap: wrap; }
+.hero-stat-value { font-size: 24px; font-weight: 800; }
+.hero-stat-label { color: var(--text-secondary); font-size: 13px; }
+
+/* Foto di belakang kartu "Menu Terlaris" muncul perlahan dari bawah */
+.hero-img-wrap { animation: heroImageIn 1s cubic-bezier(.22, .68, .32, 1) both; }
+.hero-float-card { animation: heroCardIn .7s cubic-bezier(.22, .68, .32, 1) .45s both; }
+
+@keyframes heroImageIn {
+  from { opacity: 0; transform: translateY(30px) scale(.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes heroCardIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-img-wrap, .hero-float-card { animation: none; }
+}
 
 /* ---------- Section heading ---------- */
 .section { padding: 44px 0; }
@@ -312,6 +334,10 @@ img { max-width: 100%; display: block; }
 .footer p { color: #B8AFA7; font-size: 14px; }
 .footer-brand { font-weight: 800; font-size: 22px; color: #fff; margin-bottom: 8px; }
 .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 20px; font-size: 13px; color: #8A8177; text-align: center; }
+.footer-map { display: block; padding: 4px 0; }
+.footer-map .footer-map-label { display: block; color: #fff; font-weight: 700; margin-bottom: 2px; }
+.footer-map .footer-map-address { display: block; color: #B8AFA7; line-height: 1.5; }
+.footer-map:hover .footer-map-address { color: var(--primary); }
 
 /* ---------- Forms ---------- */
 .form-group { margin-bottom: 18px; }
@@ -408,6 +434,78 @@ select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='ht
 .pagination a, .pagination span { padding: 8px 14px; border-radius: 10px; background: #fff; border: 1px solid var(--border); font-size: 14px; color: var(--text); }
 .pagination a:hover { border-color: var(--primary); color: var(--primary-dark); }
 .pagination .current { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ---------- Keranjang ngambang ---------- */
+.floating-cart {
+  position: fixed; right: 22px; bottom: 22px; z-index: 1500;
+  display: flex; align-items: center; gap: 12px;
+  background: #fff; border: 1px solid var(--border); border-radius: 999px;
+  padding: 8px 12px 8px 8px; box-shadow: 0 14px 34px rgba(41,37,36,.2);
+  transform: translateY(160%); opacity: 0; pointer-events: none;
+  transition: transform .38s cubic-bezier(.22,.68,.32,1), opacity .38s ease;
+}
+.floating-cart.is-visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
+.floating-cart.bump { animation: cartBump .45s ease; }
+@keyframes cartBump {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.09); }
+  60% { transform: scale(.97); }
+  100% { transform: scale(1); }
+}
+.floating-cart-btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px; border-radius: 50%; background: var(--primary); color: #fff;
+  box-shadow: 0 8px 18px rgba(249,115,22,.35);
+}
+.floating-cart-btn:hover { background: var(--primary-dark); color: #fff; }
+.floating-cart-count {
+  position: absolute; top: -5px; right: -5px; min-width: 21px; height: 21px; padding: 0 5px;
+  border-radius: 999px; background: #fff; color: var(--primary-dark); font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary);
+}
+.floating-cart-info { display: flex; flex-direction: column; line-height: 1.15; }
+.floating-cart-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .7px;
+  color: var(--text-secondary); font-weight: 700;
+}
+.floating-cart-total { font-size: 14px; font-weight: 800; color: var(--primary-dark); }
+.floating-cart-view { flex: none; }
+
+/* ---------- Tab (Pesanan Aktif / Riwayat) ---------- */
+.tabs { display: flex; gap: 8px; margin-bottom: 22px; border-bottom: 1px solid var(--border); }
+.tabs a {
+  padding: 11px 18px; font-weight: 600; font-size: 14.5px; color: var(--text-secondary);
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.tabs a:hover { color: var(--primary-dark); }
+.tabs a.active { color: var(--primary-dark); border-bottom-color: var(--primary); }
+
+/* ---------- Opsi metode pembayaran (checkout) ---------- */
+.pay-group { margin-bottom: 18px; }
+.pay-group:last-child { margin-bottom: 0; }
+.pay-group-title {
+  font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px;
+  color: var(--text-secondary); margin-bottom: 8px;
+}
+.pay-option {
+  align-items: flex-start; padding: 13px 14px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); margin-bottom: 9px; cursor: pointer; transition: var(--transition);
+}
+.pay-option:hover { border-color: var(--primary); background: #FFFBF7; }
+.pay-option:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+.pay-option input { margin-top: 3px; }
+.pay-option .pay-name { font-weight: 700; font-size: 14.5px; }
+.pay-option .pay-desc { font-size: 12.5px; color: var(--text-secondary); }
+.pay-ref {
+  font-family: "Plus Jakarta Sans", monospace; font-weight: 800; font-size: 16px;
+  letter-spacing: 1px; color: var(--primary-dark); background: var(--bg);
+  border: 1px dashed var(--primary); border-radius: var(--radius-sm); padding: 12px 14px; text-align: center;
+}
+
+@media (max-width: 560px) {
+  .floating-cart { right: 12px; bottom: 12px; }
+  .floating-cart-info { display: none; }
+}
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1024px) {

@@ -1,11 +1,11 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Online Food Ordering System - Toko Kita
+title Online Food Ordering System - RM KAK ROS
 chcp 65001 >nul
 
 echo ==================================================
-echo   ONLINE FOOD ORDERING SYSTEM - TOKO KITA
+echo   ONLINE FOOD ORDERING SYSTEM - RM KAK ROS
 echo ==================================================
 echo.
 

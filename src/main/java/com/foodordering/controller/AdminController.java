@@ -2,7 +2,6 @@ package com.foodordering.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,7 +67,7 @@ public class AdminController {
             byDay.put(today.minusDays(i), BigDecimal.ZERO);
         }
         for (Object[] row : reportService.salesPerDay(days)) {
-            LocalDate day = ((LocalDateTime) row[0]).toLocalDate();
+            LocalDate day = (LocalDate) row[0];
             byDay.merge(day, (BigDecimal) row[1], BigDecimal::add);
         }
         List<Object[]> rows = new ArrayList<>();

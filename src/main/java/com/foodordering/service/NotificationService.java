@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.foodordering.exception.BadRequestException;
 import com.foodordering.model.Notification;
 import com.foodordering.model.User;
 import com.foodordering.repository.NotificationRepository;
@@ -22,6 +24,14 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+
+    /**
+     * Timeout stream SSE dalam milidetik. Nilai 0 atau negatif diabaikan oleh container
+     * sehingga {@link SseEmitter} akan jatuh ke timeout bawaan (30 detik pada Tomcat) dan
+     * memicu {@code AsyncRequestTimeoutException} pada respons yang output stream-nya sudah
+     * dipakai. Dipakai batas aman 1 jam; EventSource di sisi browser otomatis menyambung ulang.
+     */
+    private static final long SSE_TIMEOUT_MS = TimeUnit.HOURS.toMillis(1);
 
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
@@ -62,20 +72,37 @@ public class NotificationService {
 
     @Transactional
     public void markAllRead(User user) {
-        for (Notification n : notificationRepository.findTop10ByUserAndReadFalse(user)) {
-            n.setRead(true);
-        }
+        notificationRepository.markAllRead(user);
     }
 
     public SseEmitter subscribe(User user) {
-        SseEmitter emitter = new SseEmitter(0L);
-        List<SseEmitter> list = emitters.computeIfAbsent(user.getId(), k -> new CopyOnWriteArrayList<>());
+        if (user == null) {
+            throw new BadRequestException("Sesi tidak valid, silakan login kembali.");
+        }
+        SseEmitter emitter = new SseEmitter(SSE_TIMEOUT_MS);
+        Long userId = user.getId();
+        List<SseEmitter> list = emitters.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>());
         list.add(emitter);
-        emitter.onCompletion(() -> list.remove(emitter));
-        emitter.onTimeout(() -> list.remove(emitter));
-        emitter.onError(e -> list.remove(emitter));
+        emitter.onCompletion(() -> remove(userId, emitter));
+        emitter.onTimeout(() -> {
+            remove(userId, emitter);
+            emitter.complete();
+        });
+        emitter.onError(e -> remove(userId, emitter));
         send(emitter, "connected", Map.of("connected", true));
         return emitter;
+    }
+
+    /** Lepas emitter dari daftar dan buang entri map bila sudah tidak ada subscribers. */
+    private void remove(Long userId, SseEmitter emitter) {
+        List<SseEmitter> list = emitters.get(userId);
+        if (list == null) {
+            return;
+        }
+        list.remove(emitter);
+        if (list.isEmpty()) {
+            emitters.remove(userId, list);
+        }
     }
 
     private void push(Long userId, Notification notification) {

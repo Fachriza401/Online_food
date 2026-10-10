@@ -55,7 +55,8 @@
                     </div>
                 </div>
 
-                <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post">
+                <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post"
+                      data-cart-add th:attr="data-ajax-url=@{/cart/api/add}">
                     <input type="hidden" name="foodId" th:value="${food.id}">
                     <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
                         <div class="qty-control">

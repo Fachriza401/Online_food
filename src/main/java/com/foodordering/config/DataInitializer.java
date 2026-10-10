@@ -74,6 +74,7 @@ public class DataInitializer implements ApplicationRunner {
         User admin = seedAdmin();
         User customer = seedCustomer();
         seedCatalog();
+        cleanupNewCategories();
         syncCategoryImages();
         syncFoodImages();
         seedSampleOrders(customer);
@@ -119,9 +120,6 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void seedCatalog() {
-        if (foodRepository.count() > 0) {
-            return;
-        }
         Category nasi = category("Nasi", "Hidangan berbahan dasar nasi", "/images/foods/nasi-goreng-spesial.png");
         Category ayam = category("Ayam", "Olahan ayam goreng dan bakar", "/images/foods/ayam-bakar.webp");
         Category sate = category("Sate & Bakar", "Sate dan makanan bakar", "/images/foods/sate-ayam.png");
@@ -146,11 +144,60 @@ public class DataInitializer implements ApplicationRunner {
         food(minuman, "Es Teh Manis", "Teh manis dingin yang menyegarkan.", 6000, "es-teh-manis.png", true);
         food(minuman, "Es Jeruk Peras", "Jeruk peras segar dengan es batu.", 9000, "es-jeruk-peras.png", true);
         food(minuman, "Jus Alpukat", "Jus alpukat kental dengan susu cokelat.", 15000, "jus-alpukat.png", true);
+        food(minuman, "Es Lemon Tea", "Teh lemon dingin dengan rasa asam segar.", 10000, "es-lemon-tea.jpg", true);
+        food(minuman, "Es Cokelat", "Cokelat dingin creamy dengan es batu.", 14000, "es-cokelat.jpg", true);
+        food(minuman, "Kopi Gula Aren", "Kopi robusta dengan manisnya gula aren asli.", 18000, "kopi-gula-aren.png", true);
+        food(minuman, "Kopi Susu", "Kopi susu creamy dengan espresso pekat.", 20000, "kopi-susu.jpg", true);
+        food(minuman, "Cappuccino", "Espresso dengan busa susu lembut dan taburan bubuk kakao.", 25000, "cappuccino.jpg", true);
+        food(minuman, "Americano", "Espresso hitam dengan tambahan air panas.", 22000, "americano.jpg", true);
+        food(minuman, "Es Kopi Susu", "Kopi susu dingin dengan es batu, segar dan nikmat.", 23000, "es-kopi-susu.jpg", true);
+    }
+
+    /**
+     * Menghapus kategori "Kopi" dan "Minuman Dingin" sambil memindahkan
+     * menunya ke kategori "Minuman", sehingga menu tidak ikut terhapus.
+     */
+    private void cleanupNewCategories() {
+        categoryRepository.findByName("Kopi").ifPresent(kopi -> {
+            Category minuman = minumanCategory();
+            moveFoods(kopi, minuman);
+            categoryRepository.delete(kopi);
+            categoryRepository.flush();
+            log.info("Kategori 'Kopi' dihapus, menu dipindah ke 'Minuman'.");
+        });
+        categoryRepository.findByName("Minuman Dingin").ifPresent(dingin -> {
+            Category minuman = minumanCategory();
+            moveFoods(dingin, minuman);
+            categoryRepository.delete(dingin);
+            categoryRepository.flush();
+            log.info("Kategori 'Minuman Dingin' dihapus, menu dipindah ke 'Minuman'.");
+        });
+    }
+
+    private Category minumanCategory() {
+        return categoryRepository.findByName("Minuman").orElseGet(() -> {
+            Category c = new Category("Minuman", "Minuman segar");
+            c.setImageUrl("/images/foods/es-teh-manis.png");
+            return categoryRepository.save(c);
+        });
+    }
+
+    private void moveFoods(Category from, Category to) {
+        if (from.getId() == null || from.getId().equals(to.getId())) {
+            return;
+        }
+        for (Food food : foodRepository.findAll()) {
+            if (food.getCategory() != null && from.getId().equals(food.getCategory().getId())) {
+                food.setCategory(to);
+                foodRepository.save(food);
+            }
+        }
+        foodRepository.flush();
     }
 
     private static final Map<String, String> BUNDLED_IMAGES = Map.ofEntries(
             Map.entry("Nasi Goreng Spesial", "/images/foods/nasi-goreng-spesial.png"),
-            Map.entry("Nasi Goreng Ayam", "/images/foods/nasi-goreng-ayam.png"),
+            Map.entry("Nasi Goreng sate Ayam", "/images/foods/nasi-goreng-ayam.png"),
             Map.entry("Nasi Uduk Komplit", "/images/foods/nasi-uduk-komplit.png"),
             Map.entry("Ayam Bakar", "/images/foods/ayam-bakar.webp"),
             Map.entry("Ayam Goreng Krispi", "/images/foods/ayam-goreng-krispi.png"),
@@ -162,14 +209,21 @@ public class DataInitializer implements ApplicationRunner {
             Map.entry("Tempe & Tahu Goreng", "/images/foods/tempe-tahu.png"),
             Map.entry("Es Teh Manis", "/images/foods/es-teh-manis.png"),
             Map.entry("Es Jeruk Peras", "/images/foods/es-jeruk-peras.png"),
-            Map.entry("Jus Alpukat", "/images/foods/jus-alpukat.png"));
+            Map.entry("Jus Alpukat", "/images/foods/jus-alpukat.png"),
+            Map.entry("Es Lemon Tea", "/images/foods/es-lemon-tea.jpg"),
+            Map.entry("Es Cokelat", "/images/foods/es-cokelat.jpg"),
+            Map.entry("Kopi Gula Aren", "/images/foods/kopi-gula-aren.png"),
+            Map.entry("Kopi Susu", "/images/foods/kopi-susu.jpg"),
+            Map.entry("Cappuccino", "/images/foods/cappuccino.jpg"),
+            Map.entry("Americano", "/images/foods/americano.jpg"),
+            Map.entry("Es Kopi Susu", "/images/foods/es-kopi-susu.jpg"));
 
-    private static final Map<String, String> BUNDLED_CATEGORY_IMAGES = Map.of(
-            "Nasi", "/images/foods/nasi-goreng-spesial.png",
-            "Ayam", "/images/foods/ayam-bakar.webp",
-            "Sate & Bakar", "/images/foods/sate-ayam.png",
-            "Lauk Sampingan", "/images/foods/telur-balado.png",
-            "Minuman", "/images/foods/es-teh-manis.png");
+    private static final Map<String, String> BUNDLED_CATEGORY_IMAGES = Map.ofEntries(
+            Map.entry("Nasi", "/images/foods/nasi-goreng-spesial.png"),
+            Map.entry("Ayam", "/images/foods/ayam-bakar.webp"),
+            Map.entry("Sate & Bakar", "/images/foods/sate-ayam.png"),
+            Map.entry("Lauk Sampingan", "/images/foods/telur-balado.png"),
+            Map.entry("Minuman", "/images/foods/es-teh-manis.png"));
 
     private void syncCategoryImages() {
         for (Category category : categoryRepository.findAll()) {
@@ -308,6 +362,9 @@ public class DataInitializer implements ApplicationRunner {
 
     private void food(Category category, String name, String description,
                       long price, String imageFile, boolean available) {
+        if (foodRepository.findByName(name).isPresent()) {
+            return;
+        }
         Food f = new Food();
         f.setName(name);
         f.setDescription(description);

@@ -1,5 +1,7 @@
 package com.foodordering.config;
 
+import jakarta.servlet.DispatcherType;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,10 +18,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
+                .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                 .requestMatchers(HttpMethod.POST, "/food/*/review").hasRole("CUSTOMER")
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/h2-console/**",
                         "/", "/menu", "/menu/**", "/food/**", "/categories/**",
-                        "/auth/**", "/register", "/login", "/error").permitAll()
+                        "/auth/**", "/register", "/login", "/error", "/403", "/404").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

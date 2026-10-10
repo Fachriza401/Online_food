@@ -125,7 +125,7 @@ files[join(base, "placeholders", "placeholder-category.svg")] = svgCat("Kategori
 
 // Logo & favicon
 files[join(base, "branding", "logo.svg")] = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" role="img" aria-labelledby="tl">
-  <title id="tl">Logo Toko Kita</title>
+  <title id="tl">Logo RM KAK ROS</title>
   <rect width="120" height="120" rx="26" fill="#F97316"/>
   <path d="M60 20a40 40 0 1 1-35 23l10 13q-7 8-4 14 4 9 14 9 14 0 21-10t1-22z" fill="#FFFFFF"/>
   <path d="M52 22q14 12 26-2" stroke="#F97316" stroke-width="5" fill="none" stroke-linecap="round"/>

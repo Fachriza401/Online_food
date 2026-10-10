@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -40,8 +41,8 @@ public class ReportService {
         stats.put("menuCount", foodRepository.count());
         stats.put("orderCount", orderRepository.count());
         stats.put("pendingCount", orderRepository.countByStatus(OrderStatus.PENDING));
-        stats.put("customerCount", userRepository.count());
-        stats.put("revenue", BigDecimal.valueOf(orderRepository.sumTotalNonCancelled()));
+        stats.put("customerCount", userRepository.countCustomers());
+        stats.put("revenue", orderRepository.sumTotalNonCancelled());
         return stats;
     }
 
@@ -64,10 +65,22 @@ public class ReportService {
         return orderItemRepository.topSelling(PageRequest.of(0, limit)).getContent();
     }
 
+    /**
+     * Penjualan per hari (bukan per timestamp order): hasil query digabung per
+     * {@link LocalDate} lalu diurutkan menaik, sehingga satu tanggal hanya muncul satu baris.
+     */
     @Transactional(readOnly = true)
     public List<Object[]> salesPerDay(int days) {
         LocalDate start = LocalDate.now().minusDays(days - 1L);
-        return orderItemRepository.salesPerDay(start.atStartOfDay(), LocalDateTime.now());
+        List<Object[]> raw = orderItemRepository.salesPerDay(start.atStartOfDay(), LocalDateTime.now());
+        Map<LocalDate, BigDecimal> byDay = new TreeMap<>();
+        for (Object[] row : raw) {
+            LocalDate day = ((LocalDateTime) row[0]).toLocalDate();
+            byDay.merge(day, (BigDecimal) row[1], BigDecimal::add);
+        }
+        return byDay.entrySet().stream()
+                .map(e -> new Object[]{ e.getKey(), e.getValue() })
+                .toList();
     }
 
     @Transactional(readOnly = true)
