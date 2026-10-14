@@ -7,7 +7,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -36,15 +35,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public String handleGeneric(Exception ex, Model model, ModelAndViewContainer mavContainer,
-                                NativeWebRequest webRequest, HttpServletResponse response) {
+    public String handleGeneric(Exception ex, Model model, NativeWebRequest webRequest,
+                                HttpServletResponse response) {
         // Respons sudah ter-commit (mis. stream SSE yang menulis langsung ke output stream):
         // merender view akan memicu IllegalStateException "getOutputStream() has already been
-        // called". Tandai request sudah ditangani supaya DispatcherServlet tidak render apa pun.
+        // called". Kembalikan null agar DispatcherServlet menandai request sudah ditangani
+        // dan tidak merender apa pun.
         if (response.isCommitted()) {
             log.warn("Permintaan {} gagal dengan {} setelah respons ter-commit, operasi dibatalkan",
                     webRequest.getDescription(false), ex.getClass().getSimpleName());
-            mavContainer.setRequestHandled(true);
             return null;
         }
 

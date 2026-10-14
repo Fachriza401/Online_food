@@ -1,6 +1,5 @@
 package com.foodordering.service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,7 +88,7 @@ public class NotificationService {
             emitter.complete();
         });
         emitter.onError(e -> remove(userId, emitter));
-        send(emitter, "connected", Map.of("connected", true));
+        send(userId, emitter, "connected", Map.of("connected", true));
         return emitter;
     }
 
@@ -117,15 +116,27 @@ public class NotificationService {
                 "time", notification.getCreatedAt().toLocalTime().toString(),
                 "count", unreadCount(notification.getUser()));
         for (SseEmitter emitter : list) {
-            send(emitter, "notification", data);
+            send(userId, emitter, "notification", data);
         }
     }
 
-    private void send(SseEmitter emitter, String name, Map<String, Object> data) {
+    private void send(Long userId, SseEmitter emitter, String name, Map<String, Object> data) {
         try {
             emitter.send(SseEmitter.event().name(name).data(objectMapper.writeValueAsString(data)));
-        } catch (IOException | IllegalStateException ignored) {
+        } catch (Exception ex) {
+            // Koneksi SSE sudah tidak dapat dipakai (klien terputus/timeout). Kegagalan ini
+            // tidak boleh menggagalkan transaksi pemanggil (mis. perubahan status pesanan),
+            // jadi cukup buang emitter dari daftar lalu tutup dengan aman.
+            remove(userId, emitter);
+            completeQuietly(emitter);
+        }
+    }
+
+    private void completeQuietly(SseEmitter emitter) {
+        try {
             emitter.complete();
+        } catch (Exception ignored) {
+            // Async context mungkin sudah tidak valid; tidak ada yang bisa dilakukan.
         }
     }
 }

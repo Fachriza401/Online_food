@@ -1,6 +1,6 @@
 #FileLock
-#Sat Oct 10 07:52:57 ICT 2026
+#Wed Oct 14 17:09:12 ICT 2026
 hostName=laptop3
-id=1a1234c7ad8b4a64036c03a0075defd4e6597fa5a55
+id=1a139e325faa5765c33c4ec4fd8cf873e867d63ec39
 method=file
-server=192.168.100.119\:54507
+server=192.168.1.239\:61869
