@@ -58,6 +58,13 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="form-label" style="display:block">Menu Unggulan</label>
+                            <label class="form-check" style="padding:12px;border:1.5px solid var(--border);border-radius:10px">
+                                <input type="checkbox" th:field="*{featured}">
+                                <span>Jadikan Menu Unggulan / Favorit (tampil di bagian khusus di beranda)</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
                             <label class="form-label" for="imageFile">Foto Menu</label>
                             <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
                                 <div style="flex:1;min-width:220px">
@@ -74,7 +81,7 @@
                             </div>
                             <input type="hidden" th:field="*{imageUrl}">
                         </div>
-                        <div style="display:flex;gap:12px;margin-top:6px">
+                        <div class="form-actions" style="display:flex;gap:12px;margin-top:6px">
                             <button type="submit" class="btn-pill primary" style="padding:12px 28px">Simpan</button>
                             <a href="/admin/foods" class="btn-pill outline" style="padding:12px 28px">Batal</a>
                         </div>

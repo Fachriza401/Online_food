@@ -91,6 +91,7 @@ public class AdminFoodController {
         form.setPrice(food.getPrice());
         form.setCategoryId(food.getCategory() != null ? food.getCategory().getId() : null);
         form.setAvailable(food.isAvailable());
+        form.setFeatured(food.isFeatured());
         form.setImageUrl(food.getImageUrl());
         model.addAttribute("foodForm", form);
         model.addAttribute("food", food);
@@ -134,6 +135,15 @@ public class AdminFoodController {
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
         foodService.delete(id);
         ra.addFlashAttribute("success", "Menu dihapus");
+        return "redirect:/admin/foods";
+    }
+
+    @PostMapping("/{id}/featured")
+    public String toggleFeatured(@PathVariable Long id, RedirectAttributes ra) {
+        boolean nowFeatured = foodService.toggleFeatured(id);
+        ra.addFlashAttribute("success", nowFeatured
+                ? "Menu ditandai sebagai Menu Unggulan"
+                : "Menu dihapus dari Menu Unggulan");
         return "redirect:/admin/foods";
     }
 }

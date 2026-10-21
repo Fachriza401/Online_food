@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: adminHead('Cetak Laporan')}"></head>
+<body class="rs-page">
+
+<!-- ============================================================
+     HALAMAN CETAK MANDIRI (Laporan Penjualan)
+     ------------------------------------------------------------
+     Dibuka di tab baru dari menu "Laporan". Dirancang sepenuhnya
+     responsif: nyaman dibaca di HP maupun desktop, dan saat
+     dicetak / disimpan sebagai PDF menghasilkan dokumen A4 rapi.
+     ============================================================ -->
+<header class="rs-toolbar no-print">
+    <div class="rs-toolbar-info">
+        <span class="rs-toolbar-badge">Laporan Penjualan</span>
+        <strong th:text="'Periode ' + ${periodLabelText}">Periode -</strong>
+        <span class="rs-toolbar-doc" th:text="${docNumberText}">LPR/20261021</span>
+    </div>
+    <div class="rs-toolbar-actions">
+        <a class="btn-pill outline" th:href="@{/admin/reports}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Kembali
+        </a>
+        <a class="btn-pill success" th:href="@{/admin/reports/excel}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Excel
+        </a>
+        <button type="button" class="btn-pill primary" id="rsPrintBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Cetak / Simpan PDF
+        </button>
+    </div>
+</header>
+
+<main class="rs-page-main">
+    <th:block th:replace="~{fragments/report-sheet :: sheet}"></th:block>
+</main>
+
+<footer class="rs-page-foot no-print">
+    <span>Laporan ini dibuat otomatis oleh sistem.</span>
+    <span>Untuk PDF: tekan <strong>Cetak / Simpan PDF</strong> lalu pilih “Save as PDF” pada dialog cetak.</span>
+</footer>
+
+<th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
+<script>
+    (function () {
+        "use strict";
+        function fill() {
+            if (window.AdminPrint && window.AdminPrint.fill) {
+                window.AdminPrint.fill();
+            }
+        }
+        function doPrint() {
+            fill();
+            window.print();
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            fill();
+            var btn = document.getElementById("rsPrintBtn");
+            if (btn) {
+                btn.addEventListener("click", doPrint);
+            }
+            window.addEventListener("beforeprint", fill);
+        });
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: adminHead('Pengaturan Resto')}"></head>
+<body>
+<div class="layout">
+    <th:block th:replace="~{fragments/admin-layout :: sidebar('settings')}"></th:block>
+    <div class="main">
+        <th:block th:replace="~{fragments/admin-layout :: topbar('Pengaturan Resto')}"></th:block>
+        <div class="content" style="max-width:720px">
+            <div class="panel">
+                <div class="panel-head">
+                    <h3 class="panel-title">Identitas &amp; Kontak Restoran</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="alert alert-danger" th:if="${error}" th:text="${error}">Error</div>
+                    <p class="table-note" style="margin-top:0">
+                        Nama, logo, lokasi, dan kontak yang disimpan di sini akan otomatis
+                        tampil di navbar, footer, favicon, dan seluruh halaman situs.
+                    </p>
+                    <form th:action="@{/admin/settings}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <div class="form-group">
+                            <label class="form-label" for="restaurantName">Nama Restoran *</label>
+                            <input class="form-control" type="text" id="restaurantName" name="restaurantName"
+                                   th:value="${setting.restaurantName}" required maxlength="100"
+                                   placeholder="mis. RM KAK ROS">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="logoFile">Logo Restoran</label>
+                            <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                                <div style="flex:1;min-width:220px">
+                                    <input class="form-control" type="file" id="imageFile" name="logoFile"
+                                           accept=".jpg,.jpeg,.png,.webp">
+                                    <p class="form-hint">Maks. 5 MB, format JPG/PNG/WEBP. Logo baru langsung
+                                        menggantikan logo di seluruh halaman (navbar, sidebar, favicon).</p>
+                                </div>
+                                <img th:src="${setting.resolveLogoUrl()}" alt="Logo restoran"
+                                     id="imagePreview"
+                                     style="display:block;width:96px;height:96px;object-fit:contain;border:1px solid var(--border);border-radius:14px;background:#fff;padding:6px">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="phone">No. Kontak / Telepon</label>
+                                <input class="form-control" type="tel" id="phone" name="phone"
+                                       th:value="${setting.phone}" placeholder="mis. 0853-6315-8834">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="email">Email</label>
+                                <input class="form-control" type="email" id="email" name="email"
+                                       th:value="${setting.email}" placeholder="mis. halo@rmkakros.id">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="address">Alamat Lokasi Resto</label>
+                            <textarea class="form-control" id="address" name="address" rows="2"
+                                      th:text="${setting.address}"
+                                      placeholder="Alamat lengkap, dipakai untuk tautan Google Maps"></textarea>
+                            <p class="form-hint">Tautan "Lokasi" di footer dibuat otomatis dari alamat ini.</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="description">Deskripsi Operasional</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"
+                                      th:text="${setting.description}"
+                                      placeholder="Deskripsi singkat operasional resto"></textarea>
+                        </div>
+                        <div class="form-actions" style="display:flex;gap:12px">
+                            <button type="submit" class="btn-pill primary" style="padding:12px 28px">Simpan Pengaturan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
+</body>
+</html>

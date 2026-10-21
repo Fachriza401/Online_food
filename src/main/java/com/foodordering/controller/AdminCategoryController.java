@@ -8,11 +8,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.foodordering.dto.CategoryForm;
 import com.foodordering.exception.BadRequestException;
 import com.foodordering.service.CategoryService;
+import com.foodordering.service.FileStorageService;
 
 import jakarta.validation.Valid;
 
@@ -21,9 +24,11 @@ import jakarta.validation.Valid;
 public class AdminCategoryController {
 
     private final CategoryService categoryService;
+    private final FileStorageService fileStorageService;
 
-    public AdminCategoryController(CategoryService categoryService) {
+    public AdminCategoryController(CategoryService categoryService, FileStorageService fileStorageService) {
         this.categoryService = categoryService;
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping
@@ -42,13 +47,18 @@ public class AdminCategoryController {
 
     @PostMapping("/new")
     public String create(@Valid @ModelAttribute("categoryForm") CategoryForm form,
-                         BindingResult bindingResult, Model model, RedirectAttributes ra) {
+                         BindingResult bindingResult,
+                         @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                         Model model, RedirectAttributes ra) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("mode", "create");
             model.addAttribute("formAction", "/admin/categories/new");
             return "admin/category-form";
         }
         try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                form.setImageUrl(fileStorageService.store(imageFile));
+            }
             categoryService.create(form);
             ra.addFlashAttribute("success", "Kategori berhasil ditambahkan");
             return "redirect:/admin/categories";
@@ -78,7 +88,9 @@ public class AdminCategoryController {
     @PostMapping("/{id}/edit")
     public String update(@PathVariable Long id,
                          @Valid @ModelAttribute("categoryForm") CategoryForm form,
-                         BindingResult bindingResult, Model model, RedirectAttributes ra) {
+                         BindingResult bindingResult,
+                         @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                         Model model, RedirectAttributes ra) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("category", categoryService.findById(id));
             model.addAttribute("mode", "edit");
@@ -86,6 +98,9 @@ public class AdminCategoryController {
             return "admin/category-form";
         }
         try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                form.setImageUrl(fileStorageService.store(imageFile));
+            }
             categoryService.update(id, form);
             ra.addFlashAttribute("success", "Kategori berhasil diperbarui");
             return "redirect:/admin/categories";

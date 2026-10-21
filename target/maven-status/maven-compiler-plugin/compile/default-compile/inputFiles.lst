@@ -8,6 +8,7 @@ D:\Online_Food_Ordering_System\src\main\java\com\foodordering\controller\AdminCa
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\controller\AdminController.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\controller\AdminFoodController.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\controller\AdminOrderController.java
+D:\Online_Food_Ordering_System\src\main\java\com\foodordering\controller\AdminSettingsController.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\controller\AuthController.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\controller\CartController.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\controller\CheckoutController.java
@@ -36,6 +37,7 @@ D:\Online_Food_Ordering_System\src\main\java\com\foodordering\model\OrderStatus.
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\model\Payment.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\model\PaymentMethod.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\model\PaymentStatus.java
+D:\Online_Food_Ordering_System\src\main\java\com\foodordering\model\RestaurantSetting.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\model\Review.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\model\Role.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\model\User.java
@@ -48,6 +50,7 @@ D:\Online_Food_Ordering_System\src\main\java\com\foodordering\repository\Notific
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\repository\OrderItemRepository.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\repository\OrderRepository.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\repository\PaymentRepository.java
+D:\Online_Food_Ordering_System\src\main\java\com\foodordering\repository\RestaurantSettingRepository.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\repository\ReviewRepository.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\repository\RoleRepository.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\repository\UserRepository.java
@@ -65,6 +68,9 @@ D:\Online_Food_Ordering_System\src\main\java\com\foodordering\service\FoodServic
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\service\NotificationService.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\service\OrderService.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\service\ProfileService.java
+D:\Online_Food_Ordering_System\src\main\java\com\foodordering\service\ReportExcelService.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\service\ReportService.java
+D:\Online_Food_Ordering_System\src\main\java\com\foodordering\service\ReportViewService.java
+D:\Online_Food_Ordering_System\src\main\java\com\foodordering\service\RestaurantSettingService.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\service\ReviewService.java
 D:\Online_Food_Ordering_System\src\main\java\com\foodordering\util\BackUrl.java

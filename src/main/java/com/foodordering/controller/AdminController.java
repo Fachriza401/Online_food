@@ -1,5 +1,6 @@
 package com.foodordering.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -7,23 +8,31 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.foodordering.model.OrderStatus;
-import com.foodordering.model.PaymentMethod;
+import com.foodordering.service.ReportExcelService;
 import com.foodordering.service.ReportService;
+import com.foodordering.service.ReportViewService;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
     private final ReportService reportService;
+    private final ReportExcelService reportExcelService;
+    private final ReportViewService reportViewService;
 
-    public AdminController(ReportService reportService) {
+    public AdminController(ReportService reportService, ReportExcelService reportExcelService,
+                           ReportViewService reportViewService) {
         this.reportService = reportService;
+        this.reportExcelService = reportExcelService;
+        this.reportViewService = reportViewService;
     }
 
     @GetMapping
@@ -41,23 +50,33 @@ public class AdminController {
         return "admin/customers";
     }
 
+    /** Halaman laporan di layar + pratinjau cetak (modal). */
     @GetMapping("/reports")
     public String reports(Model model) {
-        model.addAttribute("stats", reportService.dashboardStats());
-        model.addAttribute("topFoods", reportService.topFoods(10));
-        model.addAttribute("ordersByStatusMap", reportService.ordersByStatus());
-        model.addAttribute("paymentMethod", PaymentMethod.COD);
-        model.addAttribute("orderStatuses", OrderStatus.values());
-        model.addAttribute("salesPerDay", buildSalesTable(30));
+        reportViewService.populate(model, 10);
         return "admin/reports";
     }
 
-    private List<Object[]> buildSalesTable(int days) {
-        List<Object[]> rows = new ArrayList<>();
-        for (Object[] row : reportService.salesPerDay(days)) {
-            rows.add(new Object[]{ row[0], row[1] });
-        }
-        return rows;
+    /**
+     * Halaman cetak mandiri (responsif, siap "Save as PDF").
+     * Dibuka di tab baru sehingga tidak mengganggu halaman laporan.
+     */
+    @GetMapping("/reports/print")
+    public String printReport(Model model) {
+        reportViewService.populate(model, 10);
+        return "admin/report-print";
+    }
+
+    /** Unduh laporan penjualan dalam format Excel (.xlsx). */
+    @GetMapping("/reports/excel")
+    public ResponseEntity<byte[]> downloadLaporanExcel() throws IOException {
+        byte[] content = reportExcelService.buildLaporanPenjualan();
+        String filename = "Laporan-Penjualan-" + LocalDate.now() + ".xlsx";
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(content);
     }
 
     private List<Object[]> salesBarData(int days) {

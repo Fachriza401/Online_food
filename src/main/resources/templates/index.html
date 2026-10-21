@@ -84,6 +84,59 @@
     </div>
 </section>
 
+<!-- ================= MENU UNGGULAN ================= -->
+<section class="section" id="unggulan" th:if="${!#lists.isEmpty(featuredFoods)}">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <div class="section-eyebrow">Menu Unggulan</div>
+                <h2 class="section-title">Pilihan Favorit dari RM KAK ROS</h2>
+                <p class="section-desc">Menu istimewa yang paling direkomendasikan untuk kamu coba.</p>
+            </div>
+            <a href="/menu" class="btn btn-ghost btn-sm">Lihat Menu Lengkap &rarr;</a>
+        </div>
+        <div class="food-grid">
+            <article class="food-card" th:each="food : ${featuredFoods}">
+                <div class="food-thumb">
+                    <span class="food-status" th:classappend="${food.available} ? 'available' : 'unavailable'"
+                          th:text="${food.available} ? 'Tersedia' : 'Habis'">Tersedia</span>
+                    <img th:src="${food.imageUrl}" th:alt="${food.name}" loading="lazy" decoding="async">
+                </div>
+                <div class="food-body">
+                    <span class="food-cat" th:if="${food.category != null}" th:text="${food.category.name}">Nasi</span>
+                    <h3 class="food-name">
+                        <a class="food-card-link" th:href="@{/food/{id}(id=${food.id})}"
+                           th:text="${food.name}">Nasi Goreng</a>
+                    </h3>
+                    <p class="food-desc" th:text="${food.description}">Deskripsi</p>
+                    <div class="rating-row" th:if="${food.reviewCount > 0}">
+                        <span th:replace="~{fragments/rating :: stars(${food.ratingAvg})}"></span>
+                        <span class="rating-score" th:text="${#numbers.formatDecimal(food.ratingAvg, 1, 1)}">4.7</span>
+                        <span class="rating-count" th:text="${food.reviewCount} + ' ulasan'">8 ulasan</span>
+                    </div>
+                    <div class="rating-row rating-empty" th:unless="${food.reviewCount > 0}">
+                        <span class="rating-count">Belum ada ulasan</span>
+                    </div>
+                    <div class="food-foot">
+                        <span class="food-price">Rp <span
+                                th:text="${#numbers.formatInteger(food.price, 3, 'POINT')}">28.000</span></span>
+                        <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post"
+                              data-cart-add th:attr="data-ajax-url=@{/cart/api/add}">
+                            <input type="hidden" name="foodId" th:value="${food.id}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button class="add-btn" th:disabled="${!food.available}" title="Tambah ke keranjang" type="submit">+</button>
+                        </form>
+                        <a th:if="${!isAuthenticated and food.available}" href="/login" class="btn btn-primary btn-sm"
+                           style="padding:9px 16px">Tambah</a>
+                        <span th:if="${!isAuthenticated and !food.available}" class="btn btn-ghost btn-sm"
+                              style="padding:9px 16px;opacity:.6;cursor:not-allowed">Habis</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
 <!-- ================= MENU POPULER ================= -->
 <section class="section" id="menu">
     <div class="container">
@@ -143,7 +196,7 @@
         <div class="section-head" style="justify-content:center;text-align:center">
             <div>
                 <div class="section-eyebrow">Tentang Kami</div>
-                <h2 class="section-title">Kenapa Memesan di RM KAK ROS?</h2>
+                <h2 class="section-title">Kenapa Memesan di <span th:text="${restaurantName}">RM KAK ROS</span>?</h2>
                 <p class="section-desc" style="margin:8px auto 0;max-width:640px">
                     RM KAK ROS adalah layanan pemesanan makanan online yang lahir dari dapur rumahan.
                     Kami memasak dari bahan segar setiap hari, menjaga cita rasa tetap konsisten,
@@ -155,11 +208,9 @@
         <div class="about-story">
             <div class="about-story-text">
                 <h3>Cerita Singkat Kami</h3>
-                <p>
-                    RM KAK ROS berawal dari dapur rumahan dengan mimpi sederhana:
-                    menghadirkan masakan rumahan yang hangat untuk warga sekitar. Berkat kepercayaan
-                    pelanggan, kami berkembang menjadi dapur yang melayani ratusan pesanan per bulan —
-                    tanpa pernah menurunkan kualitas rasa yang membuat nama kami dikenal.
+                <p th:with="restDesc=${restaurant != null ? restaurant.description : null}"
+                   th:text="${restDesc != null and !restDesc.isBlank()} ? ${restDesc} : 'Berawal dari dapur rumahan dengan mimpi sederhana: menghadirkan masakan rumahan yang hangat untuk warga sekitar. Berkat kepercayaan pelanggan, kami berkembang melayani ratusan pesanan per bulan tanpa menurunkan kualitas rasa.'">
+                    Berawal dari dapur rumahan.
                 </p>
                 <p>
                     Hari ini kami terus melayani dengan prinsip yang sama: bahan segar, porsi jujur,

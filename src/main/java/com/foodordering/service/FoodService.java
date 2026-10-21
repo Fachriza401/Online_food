@@ -60,6 +60,24 @@ public class FoodService {
         return available.stream().limit(limit).toList();
     }
 
+    /** Menu unggulan/favorit pilihan admin (tampil di beranda). */
+    @Transactional(readOnly = true)
+    public List<Food> findFeatured(int limit) {
+        return foodRepository.searchAvailable(null, null).stream()
+                .filter(Food::isFeatured)
+                .limit(limit)
+                .toList();
+    }
+
+    /** Tandai/batal menu sebagai unggulan (dipakai tombol cepat di daftar menu admin). */
+    @Transactional
+    public boolean toggleFeatured(Long id) {
+        Food food = findById(id);
+        food.setFeatured(!food.isFeatured());
+        foodRepository.save(food);
+        return food.isFeatured();
+    }
+
     @Transactional(readOnly = true)
     public Page<Food> findAllPaged(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -110,6 +128,7 @@ public class FoodService {
         food.setDescription(form.getDescription());
         food.setPrice(form.getPrice());
         food.setAvailable(form.isAvailable());
+        food.setFeatured(form.isFeatured());
         if (form.getImageUrl() != null && !form.getImageUrl().isBlank()) {
             food.setImageUrl(form.getImageUrl());
         }

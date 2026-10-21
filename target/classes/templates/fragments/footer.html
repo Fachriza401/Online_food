@@ -2,8 +2,11 @@
     <div class="container">
         <div class="footer-grid">
             <div>
-                <div class="footer-brand">RM<span style="color:#F97316"> KAK ROS</span></div>
-                <p>Website pemesanan makanan online. Pesan makanan favoritmu dengan mudah, cepat, dan aman — di antar sampai depan pintu.</p>
+                <div class="footer-brand"><span th:text="${restaurantName}">RM KAK ROS</span></div>
+                <p th:text="${restaurant != null and restaurant.description != null
+                    ? restaurant.description
+                    : 'Website pemesanan makanan online. Pesan makanan favoritmu dengan mudah, cepat, dan aman — di antar sampai depan pintu.'}">
+                    Website pemesanan makanan online.</p>
             </div>
             <div>
                 <h4>Navigasi</h4>
@@ -14,17 +17,23 @@
             </div>
             <div>
                 <h4>Kontak</h4>
-                <a href="tel:085363158834">0853-6315-8834</a>
-                <a href="mailto:halo@rmkakros.example">halo@rmkakros.example</a>
+                <a th:if="${restaurant != null and restaurant.phone != null}"
+                   th:href="'tel:' + ${#strings.replace(restaurant.phone, '-', '')}"
+                   th:text="${restaurant.phone}">0853-6315-8834</a>
+                <a th:if="${restaurant != null and restaurant.email != null}"
+                   th:href="'mailto:' + ${restaurant.email}"
+                   th:text="${restaurant.email}">halo@rmkakros.example</a>
                 <a class="footer-map" target="_blank" rel="noopener noreferrer"
                    title="Buka lokasi di Google Maps"
-                   href="https://www.google.com/maps/search/?api=1&amp;query=JL.%20HM.%20JONINO.61A%2C%20KEL.%20TELADAN%20TIMUR%2C%20KEC.%20MEDAN%20AREA%2C%20KOTA%20MEDAN%2C%20SUMATERA%20UTARA%20KODE%20POS%2020217">
+                   th:if="${restaurant != null and restaurant.address != null}"
+                   th:href="'https://www.google.com/maps/search/?api=1&amp;query=' + ${restaurant.address}">
                     <span class="footer-map-label">Lokasi</span>
-                    <span class="footer-map-address">JL. HM. JONINO.61A, KEL. TELADAN TIMUR, KEC. MEDAN AREA, KOTA MEDAN, SUMATERA UTARA KODE POS 20217</span>
+                    <span class="footer-map-address" th:text="${restaurant.address}">Alamat resto</span>
                 </a>
                 <a href="/#tentang">Tentang Kami</a>
             </div>
         </div>
-        <div class="footer-bottom">© <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2025</span> RM KAK ROS — Sistem Pemesanan Makanan Online. Semua hak dilindungi.</div>
+        <div class="footer-bottom">© <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2025</span> <span
+                th:text="${restaurantName}">RM KAK ROS</span> — Sistem Pemesanan Makanan Online. Semua hak dilindungi.</div>
     </div>
 </footer>

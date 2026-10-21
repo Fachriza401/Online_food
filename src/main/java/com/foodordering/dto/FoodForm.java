@@ -26,6 +26,8 @@ public class FoodForm {
 
     private boolean available = true;
 
+    private boolean featured = false;
+
     private String imageUrl;
 
     public String getName() {
@@ -66,6 +68,14 @@ public class FoodForm {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public boolean isFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(boolean featured) {
+        this.featured = featured;
     }
 
     public String getImageUrl() {

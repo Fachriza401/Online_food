@@ -7,20 +7,25 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import com.foodordering.model.RestaurantSetting;
 import com.foodordering.model.User;
 import com.foodordering.security.UserPrincipal;
 import com.foodordering.service.CartService;
 import com.foodordering.service.NotificationService;
+import com.foodordering.service.RestaurantSettingService;
 
 @ControllerAdvice
 public class GlobalModelAdvice {
 
     private final CartService cartService;
     private final NotificationService notificationService;
+    private final RestaurantSettingService restaurantSettingService;
 
-    public GlobalModelAdvice(CartService cartService, NotificationService notificationService) {
+    public GlobalModelAdvice(CartService cartService, NotificationService notificationService,
+                             RestaurantSettingService restaurantSettingService) {
         this.cartService = cartService;
         this.notificationService = notificationService;
+        this.restaurantSettingService = restaurantSettingService;
     }
 
     @ModelAttribute
@@ -32,6 +37,10 @@ public class GlobalModelAdvice {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean authenticated = auth != null && auth.isAuthenticated()
                 && !(auth.getPrincipal() instanceof String);
+        RestaurantSetting restaurant = restaurantSettingService.get();
+        model.addAttribute("restaurant", restaurant);
+        model.addAttribute("restaurantName", restaurant.resolveName());
+        model.addAttribute("restaurantLogo", restaurant.resolveLogoUrl());
         model.addAttribute("isAuthenticated", authenticated);
         model.addAttribute("isAdmin", authenticated && hasRole(auth, "ROLE_ADMIN"));
         model.addAttribute("isCustomer", authenticated && hasRole(auth, "ROLE_CUSTOMER"));

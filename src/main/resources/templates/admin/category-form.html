@@ -15,7 +15,7 @@
                 <div class="panel-body">
                     <div class="alert alert-danger" th:if="${error}" th:text="${error}">Error</div>
                     <form th:action="${formAction}"
-                          th:object="${categoryForm}" method="post">
+                          th:object="${categoryForm}" method="post" enctype="multipart/form-data">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <div class="form-group">
                             <label class="form-label" for="name">Nama Kategori *</label>
@@ -28,10 +28,22 @@
                                       placeholder="Deskripsi singkat kategori"></textarea>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="imageUrl">URL Foto Kategori</label>
-                            <input class="form-control" type="text" id="imageUrl" th:field="*{imageUrl}"
-                                   placeholder="mis. /images/foods/nasi-goreng-spesial.png">
-                            <p class="form-hint">Gunakan path foto statis atau URL gambar yang mengizinkan penggunaan.</p>
+                            <label class="form-label" for="imageFile">Foto Kategori</label>
+                            <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                                <div style="flex:1;min-width:220px">
+                                    <input class="form-control" type="file" id="imageFile" name="imageFile"
+                                           accept=".jpg,.jpeg,.png,.webp">
+                                    <p class="form-hint">Maks. 5 MB. Format JPG, PNG, atau WEBP. Pilih foto
+                                        langsung dari galeri/perangkat Anda.</p>
+                                </div>
+                                <img th:src="${categoryForm.imageUrl != null and !categoryForm.imageUrl.isBlank()
+                                     ? categoryForm.imageUrl
+                                     : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='}"
+                                     alt="Preview" class="thumb-lg" id="imagePreview"
+                                     th:styleappend="${categoryForm.imageUrl != null and !categoryForm.imageUrl.isBlank() ? 'display:block' : 'display:none'}"
+                                     style="width:110px;height:110px;object-fit:cover;aspect-ratio:1/1">
+                            </div>
+                            <input type="hidden" th:field="*{imageUrl}">
                         </div>
                         <div class="form-group">
                             <label class="form-check" style="padding:12px;border:1.5px solid var(--border);border-radius:10px">
@@ -39,7 +51,7 @@
                                 <span>Kategori aktif (tampil di situs)</span>
                             </label>
                         </div>
-                        <div style="display:flex;gap:12px">
+                        <div class="form-actions" style="display:flex;gap:12px">
                             <button type="submit" class="btn-pill primary" style="padding:12px 28px">Simpan</button>
                             <a href="/admin/categories" class="btn-pill outline" style="padding:12px 28px">Batal</a>
                         </div>

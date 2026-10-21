@@ -33,11 +33,14 @@ public class HomeController {
                 .findFirst()
                 .orElseGet(() -> foodService.findAvailable(null, null).stream().findFirst().orElse(null));
         List<Food> popular = foodService.findAvailable(null, null).stream().limit(8).toList();
+        List<Food> featured = foodService.findFeatured(8);
         reviewService.applyRatings(heroFood == null ? List.of() : List.of(heroFood));
         reviewService.applyRatings(popular);
+        reviewService.applyRatings(featured);
         model.addAttribute("heroFood", heroFood);
         model.addAttribute("categories", categoryService.findAllActive());
         model.addAttribute("popularFoods", popular);
+        model.addAttribute("featuredFoods", featured);
         model.addAttribute("totalMenus", foodService.findAll().size());
         return "index";
     }

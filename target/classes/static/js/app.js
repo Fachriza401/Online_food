@@ -1,24 +1,106 @@
 (function () {
   "use strict";
 
-  // Hamburger menu mobile
+  // Hamburger menu mobile + backdrop tutup otomatis
   var burger = document.querySelector(".hamburger");
   var navLinks = document.querySelector(".nav-links");
+  var navBackdrop = document.getElementById("navBackdrop");
+
+  function openNavMenu() {
+    if (!navLinks) return;
+    navLinks.classList.add("open");
+    if (navBackdrop) navBackdrop.classList.add("show");
+    syncBurgerSpans(true);
+  }
+  function closeNavMenu() {
+    if (!navLinks) return;
+    navLinks.classList.remove("open");
+    if (navBackdrop) navBackdrop.classList.remove("show");
+    syncBurgerSpans(false);
+  }
+  function syncBurgerSpans(open) {
+    if (!burger) return;
+    burger.querySelectorAll("span").forEach(function (s, i) {
+      s.style.transform = open
+        ? (i === 0 ? "translateY(7px) rotate(45deg)" : i === 2 ? "translateY(-7px) rotate(-45deg)" : "scaleX(0)")
+        : "";
+    });
+  }
   if (burger && navLinks) {
     burger.addEventListener("click", function () {
-      navLinks.classList.toggle("open");
-      document.querySelectorAll(".hamburger span").forEach(function (s, i) {
-        var open = navLinks.classList.contains("open");
-        s.style.transform = open ? (i === 0 ? "translateY(7px) rotate(45deg)" : i === 2 ? "translateY(-7px) rotate(-45deg)" : "scaleX(0)") : "";
-      });
+      if (navLinks.classList.contains("open")) closeNavMenu();
+      else openNavMenu();
+    });
+  }
+  // Klik backdrop / area luar navbar -> tutup menu geser
+  if (navBackdrop) {
+    navBackdrop.addEventListener("click", closeNavMenu);
+  }
+  document.addEventListener("click", function (e) {
+    if (!navLinks || !navLinks.classList.contains("open")) return;
+    if (navLinks.contains(e.target) || (burger && burger.contains(e.target))) return;
+    closeNavMenu();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeNavMenu();
+  });
+
+  var mobileAccount = document.getElementById("mobileAccount");
+  var mobileAccountBtn = document.getElementById("mobileAccountBtn");
+  var notifBtn = document.getElementById("notifBtn");
+  var notifPanel = document.getElementById("notifPanel");
+
+  function closeMobileAccount() {
+    if (!mobileAccount || !mobileAccountBtn) return;
+    mobileAccount.classList.remove("open");
+    mobileAccountBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function closeNotifPanel() {
+    if (notifPanel) notifPanel.classList.remove("open");
+  }
+
+  if (mobileAccount && mobileAccountBtn) {
+    mobileAccountBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var isOpen = mobileAccount.classList.toggle("open");
+      mobileAccountBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!mobileAccount.contains(e.target)) closeMobileAccount();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        closeMobileAccount();
+        closeNotifPanel();
+      }
+    });
+
+    // Tutup dropdown setelah menavigasi (mis. klik Keranjang / Profil)
+    mobileAccount.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", closeMobileAccount);
+    });
+  }
+
+  // Klik logo/judul: jangan reload bila sudah berada di halaman yang sama
+  var brandLink = document.querySelector("a.brand");
+  if (brandLink) {
+    brandLink.addEventListener("click", function (e) {
+      try {
+        var target = new URL(brandLink.href, window.location.href);
+        if (target.pathname === window.location.pathname && target.search === window.location.search) {
+          e.preventDefault();
+          window.scrollTo(0, 0);
+        }
+      } catch (err) {}
     });
   }
 
   // Tutup navbar setelah klik link (mobile)
   document.querySelectorAll(".nav-links a").forEach(function (a) {
-    a.addEventListener("click", function () {
-      if (navLinks) navLinks.classList.remove("open");
-    });
+    a.addEventListener("click", closeNavMenu);
   });
 
   // Auto-dismiss flash message
@@ -61,8 +143,6 @@
 
   // ---------- Notifikasi realtime (SSE + fallback polling) ----------
   var notifWrap = document.getElementById("notifWrap");
-  var notifBtn = document.getElementById("notifBtn");
-  var notifPanel = document.getElementById("notifPanel");
 
   function setNotifBadge(count) {
     if (!notifWrap) return;
@@ -75,24 +155,27 @@
         if (btn) btn.appendChild(badge);
       }
       badge.textContent = count;
-    } else if (badge) {
-      badge.remove();
+    } else {
+      if (badge) badge.remove();
     }
   }
 
   function addNotifRow(d) {
     var list = document.getElementById("notifList");
-    if (!list) return;
-    var empty = list.querySelector(".notif-empty");
-    if (empty) empty.remove();
-    var a = document.createElement("a");
-    a.className = "notif-item";
-    a.href = d.link || "#";
-    a.innerHTML = '<span class="notif-dot"></span><span class="notif-text"><span>' +
-      (d.message || "").replace(/</g, "&lt;") +
-      '</span><small>' + (d.time || "") + "</small></span>";
-    list.insertBefore(a, list.firstChild);
-    while (list.children.length > 12) list.removeChild(list.lastChild);
+    var mobileList = document.getElementById("mobileNotifList");
+    [list, mobileList].forEach(function (target) {
+      if (!target) return;
+      var empty = target.querySelector(".notif-empty");
+      if (empty) empty.remove();
+      var a = document.createElement("a");
+      a.className = "notif-item";
+      a.href = d.link || "#";
+      a.innerHTML = '<span class="notif-dot"></span><span class="notif-text"><span>' +
+        (d.message || "").replace(/</g, "&lt;") +
+        '</span><small>' + (d.time || "") + "</small></span>";
+      target.insertBefore(a, target.firstChild);
+      while (target.children.length > 12) target.removeChild(target.lastChild);
+    });
   }
 
   function showToast(msg) {
@@ -271,17 +354,28 @@
 
   function syncNavCartBadge(count) {
     var btn = document.querySelector(".cart-icon-btn");
-    if (!btn) return;
-    var badge = btn.querySelector(".cart-count");
-    if (count > 0) {
-      if (!badge) {
-        badge = document.createElement("span");
-        badge.className = "cart-count";
-        btn.appendChild(badge);
+    if (btn) {
+      var badge = btn.querySelector(".cart-count");
+      if (count > 0) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "cart-count";
+          btn.appendChild(badge);
+        }
+        badge.textContent = count;
+      } else if (badge) {
+        badge.remove();
       }
-      badge.textContent = count;
-    } else if (badge) {
-      badge.remove();
+    }
+    var mobileCartCount = document.getElementById("mobileCartCount");
+    if (mobileCartCount) {
+      if (count > 0) {
+        mobileCartCount.textContent = count;
+        mobileCartCount.style.display = "";
+      } else {
+        mobileCartCount.textContent = "0";
+        mobileCartCount.style.display = "none";
+      }
     }
   }
 

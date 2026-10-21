@@ -37,6 +37,9 @@ public class Food {
     @Column(nullable = false)
     private boolean available = true;
 
+    @Column(name = "featured", nullable = false, columnDefinition = "boolean NOT NULL DEFAULT FALSE")
+    private boolean featured = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -100,6 +103,14 @@ public class Food {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public boolean isFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(boolean featured) {
+        this.featured = featured;
     }
 
     public LocalDateTime getCreatedAt() {

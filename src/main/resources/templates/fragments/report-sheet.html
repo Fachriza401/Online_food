@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan Penjualan</title>
+</head>
+<body>
+
+<!--
+    ============================================================
+    LEMBAR LAPORAN PROFESIONAL (Report Sheet)
+    ------------------------------------------------------------
+    Dipakai oleh dua tempat sekaligus:
+      1. Modal pratinjau cetak  -> admin/reports.html
+      2. Halaman cetak mandiri  -> admin/report-print.html
+    Gaya: dashboard modern enterprise (kartu KPI, tipografi jelas,
+    garis tabel minimalis). Sepenuhnya responsif (HP & desktop).
+    ============================================================ -->
+<article class="rs-sheet" th:fragment="sheet">
+
+    <!-- ================= HEADER / KOP ================= -->
+    <header class="rs-head">
+        <div class="rs-head-brand">
+            <span class="rs-head-logo" th:if="${restaurantLogo}">
+                <img th:src="${restaurantLogo}" th:alt="${restaurantName}" width="56" height="56">
+            </span>
+            <div class="rs-head-id">
+                <h1 class="rs-restaurant" th:text="${restaurantName}">RM KAK ROS</h1>
+                <p class="rs-restaurant-line" th:if="${restaurant.address != null and !restaurant.address.isBlank()}"
+                   th:text="${restaurant.address}">Alamat restoran</p>
+                <p class="rs-restaurant-line rs-restaurant-line--soft">
+                    <span th:if="${restaurant.phone != null and !restaurant.phone.isBlank()}"
+                          th:text="'Telp. ' + ${restaurant.phone}">Telp</span>
+                    <span th:if="${restaurant.email != null and !restaurant.email.isBlank()}"
+                          th:text="' · ' + ${restaurant.email}">Email</span>
+                </p>
+            </div>
+        </div>
+        <div class="rs-head-doc">
+            <span class="rs-doc-kind">Laporan Penjualan</span>
+            <span class="rs-doc-no" th:text="${docNumberText}">LPR/20261021</span>
+            <span class="rs-doc-status"><i></i> Dokumen Resmi · TerOtomatisasi</span>
+        </div>
+    </header>
+
+    <!-- ================= JUDUL LAPORAN ================= -->
+    <div class="rs-title">
+        <h2>Rekapitulasi Penjualan &amp; Operasional</h2>
+        <p class="rs-title-sub">
+            Ringkasan performa penjualan, menu terlaris, distribusi status pesanan,
+            dan rekap harian untuk 30 hari terakhir.
+        </p>
+        <span class="rs-title-period">
+            Periode <strong th:text="${periodLabelText}">01 Sep 2026 – 30 Sep 2026</strong>
+        </span>
+    </div>
+
+    <!-- ================= META DOKUMEN ================= -->
+    <dl class="rs-meta">
+        <div class="rs-meta-item">
+            <dt>Periode Laporan</dt>
+            <dd th:text="${periodLabelText}">-</dd>
+        </div>
+        <div class="rs-meta-item">
+            <dt>Tanggal Cetak</dt>
+            <dd><span id="printDateRealtime" th:text="${printTimestampText}">-</span></dd>
+        </div>
+        <div class="rs-meta-item">
+            <dt>Dicetak Oleh</dt>
+            <dd th:text="${currentUsername}">admin</dd>
+        </div>
+        <div class="rs-meta-item">
+            <dt>Metode Pembayaran</dt>
+            <dd th:text="${paymentMethod.label}">COD (Bayar di Tempat)</dd>
+        </div>
+        <div class="rs-meta-item">
+            <dt>Nomor Dokumen</dt>
+            <dd th:text="${docNumberText}">LPR/20261021</dd>
+        </div>
+        <div class="rs-meta-item">
+            <dt>Sumber Data</dt>
+            <dd>Database Sistem (real-time)</dd>
+        </div>
+    </dl>
+
+    <!-- ================= KARTU KPI ================= -->
+    <section class="rs-kpis" aria-label="Ringkasan angka utama">
+        <div class="rs-kpi rs-kpi--green">
+            <span class="rs-kpi-label">Total Pendapatan</span>
+            <strong class="rs-kpi-value" th:text="'Rp ' + ${#numbers.formatInteger(stats['revenue'], 3, 'POINT')}">Rp 0</strong>
+            <span class="rs-kpi-foot">30 hari terakhir</span>
+        </div>
+        <div class="rs-kpi rs-kpi--blue">
+            <span class="rs-kpi-label">Pesanan Diterima</span>
+            <strong class="rs-kpi-value" th:text="${stats['orderCount']}">0</strong>
+            <span class="rs-kpi-foot">Total transaksi</span>
+        </div>
+        <div class="rs-kpi rs-kpi--amber">
+            <span class="rs-kpi-label">Menunggu Konfirmasi</span>
+            <strong class="rs-kpi-value" th:text="${stats['pendingCount']}">0</strong>
+            <span class="rs-kpi-foot">Perlu ditindaklanjuti</span>
+        </div>
+        <div class="rs-kpi rs-kpi--violet">
+            <span class="rs-kpi-label">Pelanggan Terdaftar</span>
+            <strong class="rs-kpi-value" th:text="${stats['customerCount']}">0</strong>
+            <span class="rs-kpi-foot">Basis data pelanggan</span>
+        </div>
+        <div class="rs-kpi rs-kpi--slate">
+            <span class="rs-kpi-label">Menu Tersedia</span>
+            <strong class="rs-kpi-value" th:text="${stats['menuCount']}">0</strong>
+            <span class="rs-kpi-foot">Aktif dijual</span>
+        </div>
+    </section>
+
+    <!-- ================= 1. MENU TERLARIS ================= -->
+    <section class="rs-section">
+        <header class="rs-section-head">
+            <h3>Menu Terlaris</h3>
+            <span class="rs-section-tag">10 menu teratas</span>
+        </header>
+        <div class="rs-table-wrap">
+            <table class="rs-table">
+                <thead>
+                <tr>
+                    <th class="rs-c-no">#</th>
+                    <th>Nama Menu</th>
+                    <th class="num rs-c-qty">Terjual</th>
+                    <th class="num rs-c-money">Omzet</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row : ${reportTopFoods}">
+                    <td class="rs-c-no" data-label="Peringkat"><span class="rs-rank" th:text="${row.rank}">1</span></td>
+                    <td data-label="Nama Menu" th:text="${row.name}">Nama Menu</td>
+                    <td class="num rs-c-qty" data-label="Terjual" th:text="${row.soldText}">0</td>
+                    <td class="num rs-c-money" data-label="Omzet" th:text="${row.revenueText}">Rp 0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(reportTopFoods)}">
+                    <td colspan="4" class="rs-empty">Belum ada data penjualan.</td>
+                </tr>
+                </tbody>
+                <tfoot th:unless="${#lists.isEmpty(reportTopFoods)}">
+                <tr>
+                    <td colspan="2" data-label="Total">Total</td>
+                    <td class="num rs-c-qty" data-label="Terjual" th:text="${totalItemSoldText}">0</td>
+                    <td class="num rs-c-money" data-label="Omzet" th:text="${totalTopRevenueText}">Rp 0</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </section>
+
+    <!-- ================= 2. DISTRIBUSI STATUS PESANAN ================= -->
+    <section class="rs-section">
+        <header class="rs-section-head">
+            <h3>Distribusi Status Pesanan</h3>
+            <span class="rs-section-tag"><span th:text="${totalStatusCountText}">0</span> pesanan</span>
+        </header>
+        <div class="rs-table-wrap">
+            <table class="rs-table rs-table--status">
+                <thead>
+                <tr>
+                    <th>Status Pesanan</th>
+                    <th class="num rs-c-qty">Jumlah</th>
+                    <th class="num rs-c-money">Porsi</th>
+                    <th class="rs-c-bar">Proporsi</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row : ${reportStatuses}">
+                    <td data-label="Status Pesanan">
+                        <span class="rs-status" th:classappend="${row.badgeClass}">
+                            <i></i><span th:text="${row.label}">Status</span>
+                        </span>
+                    </td>
+                    <td class="num rs-c-qty" data-label="Jumlah" th:text="${row.countText}">0</td>
+                    <td class="num rs-c-money" data-label="Porsi" th:text="${row.pctText}">0,0%</td>
+                    <td class="rs-c-bar" data-label="Proporsi">
+                        <span class="rs-bar">
+                            <span class="rs-bar-fill" th:style="'width:' + ${row.pct} + '%'"></span>
+                        </span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(reportStatuses)}">
+                    <td colspan="4" class="rs-empty">Belum ada pesanan tercatat.</td>
+                </tr>
+                </tbody>
+                <tfoot th:unless="${#lists.isEmpty(reportStatuses)}">
+                <tr>
+                    <td data-label="Status Pesanan">Total</td>
+                    <td class="num rs-c-qty" data-label="Jumlah" th:text="${totalStatusCountText}">0</td>
+                    <td class="num rs-c-money" data-label="Porsi">100,0%</td>
+                    <td class="rs-c-bar" data-label="Proporsi"></td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+        <p class="rs-foot-note">
+            Metode pembayaran aktif: <strong th:text="${paymentMethod.label}">COD</strong> (Bayar di Tempat).
+        </p>
+    </section>
+
+    <!-- ================= 3. RECAP PENJUALAN HARIAN ================= -->
+    <section class="rs-section">
+        <header class="rs-section-head">
+            <h3>Rekap Penjualan Harian</h3>
+            <span class="rs-section-tag">30 hari terakhir</span>
+        </header>
+        <div class="rs-table-wrap">
+            <table class="rs-table rs-table--daily">
+                <thead>
+                <tr>
+                    <th class="rs-c-no">#</th>
+                    <th>Tanggal</th>
+                    <th class="num rs-c-money">Total Penjualan</th>
+                    <th class="rs-c-bar">Tren</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row : ${reportDaily}">
+                    <td class="rs-c-no" data-label="No"><span class="rs-rank" th:text="${row.rank}">1</span></td>
+                    <td data-label="Tanggal" th:text="${row.dateText}">-</td>
+                    <td class="num rs-c-money" data-label="Total Penjualan" th:text="${row.amountText}">Rp 0</td>
+                    <td class="rs-c-bar" data-label="Tren">
+                        <span class="rs-bar rs-bar--slim">
+                            <span class="rs-bar-fill" th:style="'width:' + ${row.pct} + '%'"></span>
+                        </span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(reportDaily)}">
+                    <td colspan="4" class="rs-empty">Belum ada data penjualan harian.</td>
+                </tr>
+                </tbody>
+                <tfoot th:unless="${#lists.isEmpty(reportDaily)}">
+                <tr>
+                    <td colspan="2" data-label="Total">Total (<span th:text="${#lists.size(reportDaily)}">0</span> hari tercatat)</td>
+                    <td class="num rs-c-money" data-label="Total Penjualan" th:text="${totalSalesText}">Rp 0</td>
+                    <td class="rs-c-bar" data-label="Tren"></td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </section>
+
+    <!-- ================= CATATAN / INSIGHT ================= -->
+    <section class="rs-insight">
+        <h4>Catatan Laporan</h4>
+        <ul>
+            <li>Laporan dibuat otomatis oleh sistem berdasarkan data transaksi terkini
+                dan dicetak pada <span id="printDateNote" th:text="${printTimestampText}">-</span>.</li>
+            <li>Nilai pendapatan tidak termasuk pesanan berstatus dibatalkan.</li>
+            <li>Metode pembayaran yang berlaku saat laporan ini dicetak:
+                <strong th:text="${paymentMethod.label}">COD</strong>.</li>
+            <li>Distribusi status pesanan dihitung terhadap seluruh pesanan pada periode laporan.</li>
+        </ul>
+    </section>
+
+    <!-- ================= TANDA TANGAN ================= -->
+    <footer class="rs-sign">
+        <div class="rs-sign-copy">
+            <p>Demikian laporan ini dibuat dengan sebenarnya.</p>
+            <p class="rs-sign-date"><span id="printDateSign" th:text="${printDateSignText}">-</span></p>
+            <p class="rs-sign-role">Penanggung Jawab / Kasir</p>
+        </div>
+        <div class="rs-sign-box">
+            <div class="rs-sign-line"></div>
+            <p class="rs-sign-name" th:text="${currentUser != null and currentUser.fullName != null
+                ? currentUser.fullName : currentUsername}">Nama Petugas</p>
+        </div>
+    </footer>
+
+</article>
+
+</body>
+</html>

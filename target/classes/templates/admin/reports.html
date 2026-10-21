@@ -1,98 +1,199 @@
 <!DOCTYPE html>
 <html lang="id" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/admin-layout :: adminHead('Laporan')}"></head>
-<body>
+<body class="has-print-modal">
 <div class="layout">
     <th:block th:replace="~{fragments/admin-layout :: sidebar('reports')}"></th:block>
     <div class="main">
         <th:block th:replace="~{fragments/admin-layout :: topbar('Laporan')}"></th:block>
-        <div class="content">
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <span class="stat-icon blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>
-                    <div>
-                        <div class="stat-value" th:text="${stats['orderCount']}">0</div>
-                        <div class="stat-label">Pesanan Diterima</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon green"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-                    <div>
-                        <div class="stat-value">Rp <span th:text="${#numbers.formatInteger(stats['revenue'], 3, 'POINT')}">0</span></div>
-                        <div class="stat-label">Total Pendapatan</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon orange"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C2410C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-                    <div>
-                        <div class="stat-value" th:text="${stats['pendingCount']}">0</div>
-                        <div class="stat-label">Menunggu Konfirmasi</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon purple"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-                    <div>
-                        <div class="stat-value" th:text="${stats['customerCount']}">0</div>
-                        <div class="stat-label">Pelanggan Terdaftar</div>
-                    </div>
-                </div>
+        <div class="content report-page">
+
+            <div class="report-actions no-print">
+                <button type="button" class="btn-pill primary" data-print-preview>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:2px">
+                        <polyline points="6 9 6 2 18 2 18 9"/>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                        <rect x="6" y="14" width="12" height="8"/>
+                    </svg>
+                    Pratinjau Cetak
+                </button>
+                <a class="btn-pill outline" th:href="@{/admin/reports/print}" target="_blank" rel="noopener">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:2px">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    Halaman Cetak
+                </a>
+                <button type="button" class="btn-pill success" id="btnDownloadPdfReport">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:2px">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Unduh PDF
+                </button>
+                <a class="btn-pill outline" th:href="@{/admin/reports/excel}">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:2px">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Unduh Excel (.xlsx)
+                </a>
+                <span class="report-hint">
+                    Laporan dalam format bersih &amp; monokrom untuk pencetakan profesional.
+                    Gunakan <strong>Unduh PDF</strong> untuk menyimpan langsung, atau <strong>Halaman Cetak</strong> lalu pilih <strong>Simpan sebagai PDF</strong>.
+                </span>
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start" class="r-grid">
                 <div class="panel">
-                    <div class="panel-head"><h3 class="panel-title">Menu Terlaris</h3></div>
+                    <div class="panel-head"><h3 class="panel-title">Menu Terlaris</h3>
+                        <span class="table-note">10 menu teratas</span>
+                    </div>
                     <div class="table-wrap">
                         <table class="table">
-                            <thead><tr><th>#</th><th>Menu</th><th>Terjual</th><th>Omzet</th></tr></thead>
+                            <thead><tr><th>#</th><th>Menu</th><th class="num">Terjual</th><th class="num">Omzet</th></tr></thead>
                             <tbody>
-                            <tr th:each="row, i : ${topFoods}">
-                                <td th:text="${i.index + 1}">1</td>
-                                <td th:text="${row[0]}">Nama</td>
-                                <td th:text="${row[1]}">0</td>
-                                <td>Rp <span th:text="${#numbers.formatInteger(row[2], 3, 'POINT')}">0</span></td>
+                            <tr th:each="row : ${reportTopFoods}">
+                                <td th:text="${row.rank}">1</td>
+                                <td th:text="${row.name}">Nama</td>
+                                <td class="num" th:text="${row.soldText}">0</td>
+                                <td class="num" th:text="${row.revenueText}">Rp 0</td>
                             </tr>
-                            <tr th:if="${#lists.isEmpty(topFoods)}">
+                            <tr th:if="${#lists.isEmpty(reportTopFoods)}">
                                 <td colspan="4" class="table-note" style="text-align:center;padding:24px">Belum ada penjualan.</td>
                             </tr>
                             </tbody>
+                            <tfoot th:unless="${#lists.isEmpty(reportTopFoods)}">
+                            <tr>
+                                <td colspan="2">TOTAL</td>
+                                <td class="num" th:text="${totalItemSoldText}">0</td>
+                                <td class="num" th:text="${totalTopRevenueText}">Rp 0</td>
+                            </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
 
                 <div class="panel">
-                    <div class="panel-head"><h3 class="panel-title">Distribusi Status Pesanan</h3></div>
-                    <div class="panel-body">
-                        <div th:each="entry : ${ordersByStatusMap}" style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--border)">
-                            <span style="display:inline-flex;align-items:center;gap:8px">
-                                <span class="badge" th:classappend="${entry.key.badgeClass}" th:text="${entry.key.label}">Status</span>
-                            </span>
-                            <strong th:text="${entry.value}">0</strong>
-                        </div>
-                        <p class="table-note" style="margin:14px 0 0">Metode pembayaran: <strong th:text="${paymentMethod.label}">COD</strong> (Bayar di Tempat).</p>
+                    <div class="panel-head"><h3 class="panel-title">Distribusi Status Pesanan</h3>
+                        <span class="table-note" th:text="${totalStatusCountText} + ' pesanan'">0 pesanan</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead><tr><th>Status</th><th class="num">Jumlah</th><th class="num">Porsi</th></tr></thead>
+                            <tbody>
+                            <tr th:each="row : ${reportStatuses}">
+                                <td><span class="badge" th:classappend="${row.badgeClass}" th:text="${row.label}">Status</span></td>
+                                <td class="num" th:text="${row.countText}">0</td>
+                                <td class="num" th:text="${row.pctText}">0,0%</td>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <td>TOTAL</td>
+                                <td class="num" th:text="${totalStatusCountText}">0</td>
+                                <td class="num">100,0%</td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="panel-body" style="padding-top:14px">
+                        <p class="table-note" style="margin:0">Metode pembayaran: <strong th:text="${paymentMethod.label}">COD</strong> (Bayar di Tempat).</p>
                     </div>
                 </div>
             </div>
 
             <div class="panel" style="margin-top:18px">
-                <div class="panel-head"><h3 class="panel-title">Penjualan 30 Hari Terakhir (per-hari)</h3></div>
+                <div class="panel-head"><h3 class="panel-title">Penjualan 30 Hari Terakhir (per-hari)</h3>
+                    <span class="table-note">30 hari terakhir</span>
+                </div>
                 <div class="table-wrap">
                     <table class="table">
-                        <thead><tr><th>Tanggal</th><th>Total Penjualan</th></tr></thead>
+                        <thead><tr><th>Tanggal</th><th class="num">Total Penjualan</th><th class="rs-c-bar">Tren</th></tr></thead>
                         <tbody>
-                        <tr th:each="row : ${salesPerDay}">
-                            <td th:text="${#temporals.format(row[0], 'EEEE, dd MMM yyyy')}">-</td>
-                            <td>Rp <span th:text="${#numbers.formatInteger(row[1], 3, 'POINT')}">0</span></td>
+                        <tr th:each="row : ${reportDaily}">
+                            <td th:text="${row.dateText}">-</td>
+                            <td class="num" th:text="${row.amountText}">Rp 0</td>
+                            <td class="rs-c-bar">
+                                <span class="rs-bar rs-bar--slim">
+                                    <span class="rs-bar-fill" th:style="'width:' + ${row.pct} + '%'"></span>
+                                </span>
+                            </td>
                         </tr>
-                        <tr th:if="${#lists.isEmpty(salesPerDay)}">
-                            <td colspan="2" class="table-note" style="text-align:center;padding:24px">Belum ada data penjualan.</td>
+                        <tr th:if="${#lists.isEmpty(reportDaily)}">
+                            <td colspan="3" class="table-note" style="text-align:center;padding:24px">Belum ada data penjualan.</td>
                         </tr>
                         </tbody>
+                        <tfoot th:unless="${#lists.isEmpty(reportDaily)}">
+                        <tr>
+                            <td th:text="'TOTAL (' + ${#lists.size(reportDaily)} + ' hari tercatat)'">TOTAL</td>
+                            <td class="num" th:text="${totalSalesText}">Rp 0</td>
+                            <td class="rs-c-bar"></td>
+                        </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
+
+<!-- ============================================================
+     MODAL PRATINJAU CETAK LAPORAN
+     Lembar laporan bergaya dashboard modern enterprise:
+     kartu KPI di atas, tipografi jelas, dan garis tabel minimalis.
+     Data diambil real-time dari server; tanggal cetak diperbarui
+     otomatis oleh JavaScript saat pratinjau dibuka / dicetak.
+     ============================================================ -->
+<div class="pp" id="printPreview" role="dialog" aria-modal="true" aria-labelledby="printPreviewTitle" aria-hidden="true">
+    <div class="pp-backdrop no-print" data-print-close></div>
+    <div class="pp-shell">
+
+        <header class="pp-bar no-print">
+            <div class="pp-bar-info">
+                <h2 id="printPreviewTitle">Pratinjau Cetak Laporan</h2>
+                <p>Format dashboard profesional · A4 Portrait · Data diperbarui saat dibuka</p>
+            </div>
+            <button type="button" class="pp-close" data-print-close aria-label="Tutup pratinjau">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </header>
+
+        <div class="pp-stage">
+            <!-- Lembar laporan profesional (shared dengan halaman cetak mandiri) -->
+            <th:block th:replace="~{fragments/report-sheet :: sheet}"></th:block>
+        </div>
+
+        <footer class="pp-bar pp-bar--bottom no-print">
+            <span class="pp-hint">Gunakan "Unduh PDF" untuk menyimpan langsung atau "Cetak" untuk dialog browser.</span>
+            <button type="button" class="btn-pill outline" data-print-close>Tutup</button>
+            <button type="button" class="btn-pill success" id="btnDoPrintPdf">Unduh PDF</button>
+            <button type="button" class="btn-pill primary" id="btnDoPrint">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="6 9 6 2 18 2 18 9"/>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                    <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                Cetak
+            </button>
+        </footer>
+
+    </div>
+</div>
+
 <th:block th:replace="~{fragments/admin-layout :: adminScripts}"></th:block>
 </body>
 </html>
